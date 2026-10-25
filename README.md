@@ -8,11 +8,11 @@
 
 <p align="center"><a href="README.md">简体中文</a> · <a href="README_EN.md">English</a></p>
 
-<p align="center"><a href="https://github.com/zy839971925-zyy/qingzhuan/releases">查看 APK 与所有版本</a></p>
+<p align="center"><a href="https://github.com/zy839971925-zyy/qingzhuan/releases/tag/v1.5.3-preview"><strong>下载 1.5.3 测试预览 APK</strong></a> · <a href="https://github.com/zy839971925-zyy/qingzhuan/releases">所有版本</a></p>
 
 轻转是一款面向 Android 的本地文件转换工具：在同一处处理图片与 PDF、文档与表格、视频与动态照片、音频和压缩包。文件由设备的媒体能力和应用内转换引擎处理，无需上传到在线转换服务；通过系统选择器导入和保存，操作范围由你选择。
 
-当前仓库对应 **1.5.3 预览版**，包含图片、文档和批量文件流程，以及首页与预览界面的自定义背景、玻璃面板和连续动效。APK 将以测试预览构建单独发布，不代表最终正式版；该版本尚未完成真机视觉、无障碍和性能验收。
+当前仓库对应 **1.5.3 预览版**，包含图片、文档和批量文件流程，以及首页与预览界面的自定义背景、玻璃面板和连续动效。APK 已作为测试预览版单独发布，不代表最终正式版；该版本尚未完成真机视觉、无障碍和性能验收。
 
 ## 主要功能
 
@@ -28,7 +28,7 @@
 
 ## 版本与兼容性
 
-- [查看 APK 与所有版本](https://github.com/zy839971925-zyy/qingzhuan/releases)（预览 APK 与最终正式版会分别标明）。
+- [下载 1.5.3 测试预览 APK](https://github.com/zy839971925-zyy/qingzhuan/releases/tag/v1.5.3-preview)；[查看所有版本](https://github.com/zy839971925-zyy/qingzhuan/releases)。
 
 - 源码快照：`1.5.3-glass`，预览应用 ID：`cn.qingzhuan.app.preview`。它与旧版正式应用不是同一个包；安装预览版时不要为此卸载旧应用或清除旧数据。
 - 最低配置 Android 8.0 / API 26。完整 RuntimeShader 玻璃效果需要 Android 13 / API 33 或更高版本，较旧系统使用降级效果。

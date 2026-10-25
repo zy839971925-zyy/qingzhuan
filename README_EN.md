@@ -8,11 +8,11 @@
 
 <p align="center"><a href="README.md">简体中文</a> · <a href="README_EN.md">English</a></p>
 
-<p align="center"><a href="https://github.com/zy839971925-zyy/qingzhuan/releases">APK downloads and all releases</a></p>
+<p align="center"><a href="https://github.com/zy839971925-zyy/qingzhuan/releases/tag/v1.5.3-preview"><strong>Download the 1.5.3 test preview APK</strong></a> · <a href="https://github.com/zy839971925-zyy/qingzhuan/releases">All releases</a></p>
 
 Qingzhuan is an on-device file-conversion toolkit for Android. It brings image and PDF tools, document and table conversion, video and motion-photo processing, audio extraction and archive handling into one app. Files are processed with Android media capabilities and the app's conversion engine rather than uploaded to an online conversion service; system pickers let you choose what to import and where to save it.
 
-This repository describes **preview version 1.5.3**, with image and document tools, batch-file workflows, customizable backgrounds, glass-style panels and continuous transitions in the home and preview UI. The APK will be published separately as a test preview build, not the final production release; visual, accessibility and performance acceptance on a physical device is still outstanding.
+This repository describes **preview version 1.5.3**, with image and document tools, batch-file workflows, customizable backgrounds, glass-style panels and continuous transitions in the home and preview UI. The APK is published separately as a test preview build, not the final production release; visual, accessibility and performance acceptance on a physical device is still outstanding.
 
 ## What it does
 
@@ -28,7 +28,7 @@ For same-format batches, source formats are removed from the destination choices
 
 ## Version and compatibility
 
-- [Browse APK downloads and releases](https://github.com/zy839971925-zyy/qingzhuan/releases); preview builds and the final production release will be identified separately.
+- [Download the 1.5.3 test preview APK](https://github.com/zy839971925-zyy/qingzhuan/releases/tag/v1.5.3-preview); [browse all releases](https://github.com/zy839971925-zyy/qingzhuan/releases).
 
 - Source snapshot: `1.5.3-glass`; preview application ID: `cn.qingzhuan.app.preview`. This is a different package from the older production app. Do not uninstall the older app or clear its data just to install this preview.
 - Minimum configured Android version: Android 8.0 / API 26. Full RuntimeShader glass effects require Android 13 / API 33 or later; older versions use a fallback.
