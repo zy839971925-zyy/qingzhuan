@@ -8,9 +8,11 @@
 
 <p align="center"><a href="README.md">简体中文</a> · <a href="README_EN.md">English</a></p>
 
-Qingzhuan brings everyday media and file tools together in one Android app: convert images, work with PDFs, compress video, export motion-photo clips, extract audio and handle archives. Processing uses Android media capabilities and the app's local conversion engine rather than an online conversion service. Files are imported through Android's system picker; media is saved to its media collection, while other documents can be saved to a location chosen in the system picker.
+<p align="center"><a href="https://github.com/zy839971925-zyy/qingzhuan/releases">APK downloads and all releases</a></p>
 
-This source snapshot is **preview version 1.5.3**. It retains the image and document tools, batch-file workflow and Java conversion engine, with customizable backgrounds, glass-style panels and continuous transitions in the home and preview UI. The current project is a source release candidate; no APK has been published as a final Release.
+Qingzhuan is an on-device file-conversion toolkit for Android. It brings image and PDF tools, document and table conversion, video and motion-photo processing, audio extraction and archive handling into one app. Files are processed with Android media capabilities and the app's conversion engine rather than uploaded to an online conversion service; system pickers let you choose what to import and where to save it.
+
+This repository describes **preview version 1.5.3**, with image and document tools, batch-file workflows, customizable backgrounds, glass-style panels and continuous transitions in the home and preview UI. The APK will be published separately as a test preview build, not the final production release; visual, accessibility and performance acceptance on a physical device is still outstanding.
 
 ## What it does
 
@@ -26,10 +28,12 @@ For same-format batches, source formats are removed from the destination choices
 
 ## Version and compatibility
 
+- [Browse APK downloads and releases](https://github.com/zy839971925-zyy/qingzhuan/releases); preview builds and the final production release will be identified separately.
+
 - Source snapshot: `1.5.3-glass`; preview application ID: `cn.qingzhuan.app.preview`. This is a different package from the older production app. Do not uninstall the older app or clear its data just to install this preview.
 - Minimum configured Android version: Android 8.0 / API 26. Full RuntimeShader glass effects require Android 13 / API 33 or later; older versions use a fallback.
 - Video encoding depends on the hardware/vendor encoders available on the device. Listing a codec does not guarantee every phone, resolution or parameter combination will work.
-- The source records build and package checks, but 1.5.3 has not been accepted on a physical device for visual fidelity, accessibility, touch latency or frame rate. A successful build is not device acceptance.
+- Build and package checks are recorded, but 1.5.3 has not been accepted on a physical device for visual fidelity, accessibility, touch latency or frame rate. A successful build is not device acceptance.
 
 ## Build from source
 
