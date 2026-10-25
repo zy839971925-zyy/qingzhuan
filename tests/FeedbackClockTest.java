@@ -1,0 +1,5 @@
+package cn.qingzhuan.app;
+public class FeedbackClockTest {
+ static int n;static void yes(boolean b){n++;if(!b)throw new AssertionError("feedback "+n);}
+ public static void main(String[] args){FeedbackClock fast=new FeedbackClock();fast.step(60000,100,true);yes(fast.fill<1&&fast.elapsed==48);for(int i=0;i<25;i++)fast.step(16,100,true);yes(!fast.done&&fast.check==0);for(int i=0;i<300&&!fast.done;i++)fast.step(16,100,true);yes(fast.done&&fast.fill==1&&fast.elapsed>=1200&&fast.check>=420);FeedbackClock unknown=new FeedbackClock();for(int i=0;i<10000;i++)unknown.step(16,-1,false);yes(unknown.fill<=.9&&!unknown.done&&unknown.check==0);FeedbackClock slow=new FeedbackClock();for(int i=0;i<300;i++)slow.step(16,20,false);yes(slow.fill<=.20&&!slow.done);for(int i=0;i<300;i++)slow.step(16,100,false);yes(slow.fill<=.92&&!slow.done);yes(!GestureGate.commit(.8f,0,0,80));yes(GestureGate.commit(.95f,10,10,80));yes(!GestureGate.commit(1,100,0,80));yes(!GestureGate.commit(Float.NaN,0,0,80));for(float p=0;p<=1;p+=.1f){float r=GestureGate.radius(402,874,p);yes(Math.abs(r-(245-201*p))<.001);}System.out.println("PASS native feedback/gesture "+n+" assertions");}
+}

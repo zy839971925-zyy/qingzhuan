@@ -1,0 +1,2 @@
+package android.util;
+public final class Log {public static int d(String a,String b){return 0;}public static int d(String a,String b,Throwable t){return 0;}public static int w(String a,String b){return 0;}public static int w(String a,String b,Throwable t){return 0;}public static int e(String a,String b){return 0;}public static int e(String a,String b,Throwable t){return 0;}public static int i(String a,String b){return 0;}public static int v(String a,String b){return 0;}public static boolean isLoggable(String a,int b){return false;}}

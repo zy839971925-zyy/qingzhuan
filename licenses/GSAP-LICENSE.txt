@@ -1,0 +1,5 @@
+GSAP 3.13.0 — Copyright GreenSock. The copyright/license header is retained in vendor/gsap.min.js.
+Licensed under the GSAP Standard License (including free commercial use subject to its terms).
+Authoritative terms: https://gsap.com/standard-license/
+Source package: https://registry.npmjs.org/gsap/-/gsap-3.13.0.tgz
+Reference animation repository was read for behavior only; no GPL implementation/assets were copied.

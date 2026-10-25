@@ -1,0 +1,20 @@
+{
+  "version": "1.5.3-glass",
+  "versionCode": 11,
+  "applicationId": "cn.qingzhuan.app.preview",
+  "label": "轻转预览 1.5.3",
+  "bytes": 15176409,
+  "sha256": "e6e2d37c7aeaa874aaea98e9bb761c2ab51d2eac494469117641e17779b017ba",
+  "certificateSha256": "f253392041358c9edff32e76590aaa8de02725b1806183ae6ab6ba3eb8173286",
+  "signatureVerified": true,
+  "zipalign16KB": true,
+  "internetPermission": false,
+  "privatePreviewAndService": true,
+  "nativeMediaAndGlassClassesInDex": true,
+  "presetImages": 6,
+  "buildLog": "build-153-final.log",
+  "buildSourceCommit": "24c57e61c56e609834ebb07be2114576f5469833",
+  "minimalChecks": "Kotlin compile + fresh read-only source review/fixes + clean release build + package/signature/resource identity; no broad regression suite",
+  "deviceValidation": "not performed",
+  "emulator": false
+}

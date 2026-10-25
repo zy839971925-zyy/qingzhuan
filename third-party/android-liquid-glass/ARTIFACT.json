@@ -1,0 +1,8 @@
+{
+  "used_dependency": "io.github.kyant0:backdrop:1.0.6",
+  "artifact_sha256": "92f42dc2d3a9119bfdd9ad0f5eb608e64ac30028f5b4f564f4d8dd29a1b28145",
+  "source": "Maven Central backdrop-1.0.6-sources.jar",
+  "current_repository_researched_commit": "65ab177e90e5c1d8c62e70cf7755841982da65f6",
+  "note": "Current KMP branch is not what the APK consumes; native 1.0.6 AAR is used directly.",
+  "license": "Apache-2.0"
+}

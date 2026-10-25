@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'none'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>轻转</title>
+<script>try{document.documentElement.dataset.theme=window.Native?Native.getTheme():(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');}catch(e){}</script>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<svg class="sprite" xmlns="http://www.w3.org/2000/svg"><defs>
+<symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="file" viewBox="0 0 24 24"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8zM14 3v5h5M8 13h8M8 17h5"/></symbol>
+<symbol id="history" viewBox="0 0 24 24"><path d="M3 11a9 9 0 1 1 2 7M3 4v7h7M12 7v5l3 2"/></symbol>
+<symbol id="settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16M8 4v6M16 14v6"/></symbol>
+<symbol id="check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+<symbol id="arrow" viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></symbol>
+<symbol id="close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+<symbol id="leaf" viewBox="0 0 24 24"><path d="M19 4C8 2 3 7 5 14c3 8 15 6 14-10ZM5 20 15 9"/></symbol>
+<symbol id="download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+</defs></svg>
+<header class="topbar"><button class="wordmark" id="home-button" aria-label="返回轻转首页"><span class="brand-glyph">↗</span>轻转<span class="brand-en">QINGZHUAN</span></button><div class="top-actions"><button class="icon-button" id="history-button" aria-label="已完成的文件"><svg><use href="#history"/></svg><span id="history-dot" hidden></span></button><button class="icon-button" id="settings-button" aria-label="设置与支持范围"><svg><use href="#settings"/></svg></button></div></header>
+<main id="home">
+<div id="scene-content">
+<section class="intro"><div class="eyebrow" data-glass-text>YOUR FILES, A LITTLE LIGHTER</div><h1><span data-glass-text>换个格式，</span><br><em data-glass-text>轻一点。</em></h1><p class="subtle" data-glass-text>文件的小小变换，都在此刻完成。</p></section>
+<section id="workspace" aria-label="文件转换">
+<button id="dropzone" class="dropzone"><span class="upload-symbol"><svg><use href="#plus"/></svg></span><strong data-glass-text>选择或拖入需要转换的文件</strong><span>在设备上处理，原文件保持不变</span><span class="choose-label">选择文件 <b>↗</b></span></button>
+<div id="selected-area" hidden><div class="section-heading"><span class="eyebrow">01 / 你的文件</span><div><button class="text-button" id="add-button">＋ 添加</button><button class="text-button" id="clear-button">清空</button></div></div><div id="file-stack" class="file-stack"></div></div>
+<div id="choices" hidden><div class="section-heading"><label class="eyebrow" for="tool-select">02 / 转换为</label><select id="tool-select" aria-label="选择转换工具"></select></div><p id="tool-description" class="tool-description"></p><div id="formats" class="formats" role="group" aria-label="目标格式"></div><p id="selection-note" class="small-note"></p><details id="options"><summary>转换选项 <span>＋</span></summary><div id="option-fields"></div></details></div>
+<div id="completion" hidden role="status"><div class="success-label"><svg><use href="#check"/></svg><span>转换完成</span></div><h2>换好了，交给你。</h2><div id="completed-files"></div><button class="text-button" id="again-button">继续转换 ↗</button></div>
+</section>
+<div class="privacy"><svg><use href="#leaf"/></svg><span>离线转换 · 文件只留在你手中</span></div>
+</div>
+<div id="operation-status" hidden role="status" aria-live="polite"><span class="eyebrow" id="operation-label">LOCAL PROCESSING</span><h2 id="operation-title">正在转换</h2><p id="operation-message"></p><div id="task-progress" role="progressbar" aria-label="实际转换进度"><div id="task-fill"></div></div><span id="progress-number"></span><button id="cancel-button" class="text-button">取消任务</button></div>
+</main>
+<div id="glass-stage" hidden><div id="gesture-hint"><span>按住玻璃罩并向上滑动以转换</span><small>松开前，随时可以退回</small></div><button id="glass" aria-label="上滑转换；也可按 Enter 开始"><canvas id="glass-canvas" aria-hidden="true"></canvas><span class="glass-caustic"></span><span class="glass-arrow"><svg><use href="#arrow"/></svg></span></button><button id="accessible-start" class="text-button">直接开始转换 ↗</button></div>
+<section id="history-page" class="secondary-page" hidden><div class="eyebrow">YOUR LITTLE COLLECTION</div><h1>已经完成的。</h1><p class="subtle">保存在应用内，导出后便可安心清理。</p><div class="page-actions"><button class="secondary-button" id="export-all">全部导出为 ZIP</button><button class="text-button danger" id="delete-results">清理结果</button></div><div id="history-list"></div></section>
+<section id="settings-page" class="secondary-page" hidden><div class="eyebrow">A QUIETER KIND OF TOOL</div><h1>刚刚好，就好。</h1><div class="settings-card"><h2>外观</h2><label class="setting-row">主题<select id="theme-select"><option value="system">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option></select></label><label class="setting-row">减少动态效果<input id="reduce-toggle" type="checkbox"></label><label class="setting-row">轻触反馈<input id="haptic-toggle" type="checkbox" checked></label><label class="setting-row">玻璃效果<select id="quality-select"><option value="auto">自动</option><option value="high">高 · 折射与色散</option><option value="medium">中 · 降低采样</option><option value="compat">兼容 · 轻量材质</option></select></label></div><div class="settings-card"><h2>真实能力，有边界</h2><p>图片转 JPG / PNG / WebP、图片成 PDF、PDF 合并 / 拆页 / 页面图片 / 文字提取、文档文字转换、CSV / TSV / JSON / XLSX、压缩 / 解压、音频提取和文件校验。</p><p>界面按文件内容及手机解码能力提供选项。文档仅重建文字，不保留原排版；表格不计算公式；GIF 仅首帧。不含 OCR、MP3 编码、视频转码或 RAR5 解压。</p><p>最多 20 份文件，单份 512 MiB，输入合计 1 GiB。解压上限 2000 项 / 1 GiB，PDF 上限 1000 页。应用内结果超过 2 GiB 后须先导出清理。</p><p>任务由本机处理。系统终止进程后不会自动续跑；会保留输入，提示重新转换。</p></div><div class="settings-card"><h2>离线与开源</h2><p>无网络权限。转换使用随包的原生引擎；动效使用本地 GSAP 及原创 WebGL Shader。玻璃折射使用显式合成背景与文字纹理，兼容模式使用轻量材质。</p><button class="text-button" id="licenses-button">查看离线许可 ↗</button><p class="small-note">轻转 1.2.0 · 测试版</p></div></section>
+<dialog id="confirm-dialog"><h2>清理应用内的结果？</h2><p>已导出的副本不受影响，应用内结果无法恢复。</p><div class="page-actions"><button id="keep-results" class="secondary-button">保留</button><button id="confirm-delete" class="secondary-button danger">清理结果</button></div></dialog>
+<dialog id="license-dialog"><h2>开源许可</h2><pre id="license-text"></pre><button id="close-license" class="secondary-button">关闭</button></dialog>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+<script src="licenses.js"></script><script src="vendor/gsap.min.js"></script><script src="motion.js"></script><script src="glass.js"></script><script src="app.js"></script>
+</body></html>

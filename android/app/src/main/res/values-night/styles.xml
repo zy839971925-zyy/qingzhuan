@@ -1,0 +1,15 @@
+<resources>
+    <style name="ReactAppTheme" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:windowBackground">#171B19</item>
+        <item name="android:fontFamily">sans</item>
+    </style>
+    <style name="StartupTheme" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#171B19</item>
+        <item name="android:colorAccent">#F5F5F5</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+</resources>

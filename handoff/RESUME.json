@@ -1,0 +1,16 @@
+{
+  "delivery_kind": "partial-device-validation-pending",
+  "stage": "release",
+  "git_commit": "3581822e1263b4a91653feeba556aded2c5bdc74",
+  "branch": "feature/glass-continuity-1.5.3",
+  "utc": "2026-10-25T13:02:26.641971+00:00",
+  "checks": "Clean release BUILD SUCCESSFUL1m42s; signature/package/resources/archive correspondence verified; device visual/FPS pending",
+  "no_emulator": true,
+  "device_validation": "not performed",
+  "private_key_included": false,
+  "read_next": [
+    "docs/DEVELOPMENT_1_5_3.md",
+    "docs/superpowers/plans/2026-10-25-glass-polish-1.5.3.md"
+  ],
+  "resume": "Extract source; clone full Git bundle if history needed. Restore separately saved qingzhuan-preview.keystore outside project. Open android/ or use build.py. For release checkpoints, implementation is complete and only the explicitly pending device acceptance/feedback remains; do not repeat completed tasks."
+}

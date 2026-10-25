@@ -1,0 +1,12 @@
+build*/
+toolchain/
+node_modules/
+*.apk
+*.keystore
+*.jks
+__pycache__/
+.gradle/
+.cxx/
+.kotlin/
+local.properties
+*.idsig

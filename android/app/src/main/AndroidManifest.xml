@@ -1,0 +1,21 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+    <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="36"/>
+    <uses-permission android:name="android.permission.INTERNET" tools:node="remove"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROCESSING"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <application android:name=".QingzhuanApplication" android:label="轻转预览 1.5.3" android:icon="@mipmap/qz_launcher" android:roundIcon="@mipmap/qz_launcher" android:theme="@style/ReactAppTheme" android:allowBackup="false" android:supportsRtl="true" android:usesCleartextTraffic="false" android:largeHeap="true" android:enableOnBackInvokedCallback="true">
+        <activity android:name=".NativePreviewActivity" android:exported="false" android:theme="@style/ReactAppTheme"/>
+        <activity android:name=".NativeHomeActivity" android:launchMode="singleTask" android:exported="false" android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode" android:windowSoftInputMode="adjustResize"/>
+        <activity android:name=".StartupActivity" android:exported="true" android:theme="@style/StartupTheme">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+            <intent-filter><action android:name="android.intent.action.SEND"/><category android:name="android.intent.category.DEFAULT"/><data android:mimeType="*/*"/></intent-filter>
+            <intent-filter><action android:name="android.intent.action.SEND_MULTIPLE"/><category android:name="android.intent.category.DEFAULT"/><data android:mimeType="*/*"/></intent-filter>
+        </activity>
+        <service android:name=".ConversionService" android:exported="false" android:foregroundServiceType="dataSync|mediaProcessing"/>
+        <provider android:name=".OutputProvider" android:authorities="${applicationId}.files" android:exported="false" android:grantUriPermissions="true"/>
+    </application>
+</manifest>

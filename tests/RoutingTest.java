@@ -1,0 +1,3 @@
+package cn.qingzhuan.app;
+import java.util.*;
+public class RoutingTest{public static void main(String[]args){Set<String> mixed=ToolRouting.common(Arrays.asList(Arrays.asList("image","imagepdf","pack","hash"),Arrays.asList("pdfimage","merge","pack","hash")));if(!mixed.equals(new LinkedHashSet<>(Arrays.asList("pack","hash"))))throw new AssertionError("mixed batch must not drop incompatible files");if(!ToolRouting.common(Collections.emptyList()).isEmpty())throw new AssertionError("empty has no tools");if(!ToolRouting.common(Arrays.asList(Arrays.asList("image","pack"),Arrays.asList("image","hash"))).equals(Collections.singleton("image")))throw new AssertionError("common image tool");System.out.println("PASS native mixed-batch routing 3 assertions");}}
