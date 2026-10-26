@@ -7,9 +7,9 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROCESSING"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <application android:name=".QingzhuanApplication" android:label="轻转预览 1.5.3" android:icon="@mipmap/qz_launcher" android:roundIcon="@mipmap/qz_launcher" android:theme="@style/ReactAppTheme" android:allowBackup="false" android:supportsRtl="true" android:usesCleartextTraffic="false" android:largeHeap="true" android:enableOnBackInvokedCallback="true">
+    <application android:name=".QingzhuanApplication" android:label="@string/app_name" android:localeConfig="@xml/locales_config" android:icon="@mipmap/qz_launcher" android:roundIcon="@mipmap/qz_launcher" android:theme="@style/ReactAppTheme" android:allowBackup="false" android:supportsRtl="true" android:usesCleartextTraffic="false" android:largeHeap="true" android:enableOnBackInvokedCallback="true">
         <activity android:name=".NativePreviewActivity" android:exported="false" android:theme="@style/ReactAppTheme"/>
-        <activity android:name=".NativeHomeActivity" android:launchMode="singleTask" android:exported="false" android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode" android:windowSoftInputMode="adjustResize"/>
+        <activity android:name=".NativeHomeActivity" android:launchMode="singleTask" android:exported="false" android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode|locale|layoutDirection" android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".StartupActivity" android:exported="true" android:theme="@style/StartupTheme">
             <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
             <intent-filter><action android:name="android.intent.action.SEND"/><category android:name="android.intent.category.DEFAULT"/><data android:mimeType="*/*"/></intent-filter>

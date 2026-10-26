@@ -13,6 +13,6 @@ if not key.exists():
  subprocess.run([keytool,'-genkeypair','-noprompt','-keystore',str(key),'-alias','androiddebugkey','-storepass','android','-keypass','android','-dname','CN=Qingzhuan Preview Development','-keyalg','RSA','-keysize','3072','-validity','10000'],check=True)
 env['QINGZHUAN_DEBUG_KEYSTORE']=str(key)
 subprocess.run(['sh',str(root/'android/gradlew'),':app:assemble'+args.variant.title(),'--console=plain'],cwd=root/'android',env=env,check=True)
-source=root/'android/app/build/outputs/apk'/args.variant/('app-'+args.variant+'.apk');output=root/'Qingzhuan-1.5.3-glass.apk';shutil.copyfile(source,output)
+source=root/'android/app/build/outputs/apk'/args.variant/('app-'+args.variant+'.apk');output=root/'Qingzhuan-1.5.4-refined.apk';shutil.copyfile(source,output)
 print('Native Compose test APK:',output)
 print('Private development certificate, separate cn.qingzhuan.app.preview package; device verification still required.')

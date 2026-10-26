@@ -3,7 +3,7 @@ android {
  namespace 'cn.qingzhuan.app'
  compileSdk 36
  buildToolsVersion '36.0.0'
- defaultConfig { applicationId 'cn.qingzhuan.app.preview'; minSdk 26; targetSdk 36; versionCode 11; versionName '1.5.3-glass' }
+ defaultConfig { applicationId 'cn.qingzhuan.app.preview'; minSdk 26; targetSdk 36; versionCode 12; versionName '1.5.4-refined' }
  sourceSets { main { java.srcDirs += ['../../app/src/main/java']; java.exclude '**/QingzhuanModule.java','**/QingzhuanPackage.java'; res.srcDirs += ['../../app/src/main/res']; assets.srcDirs += ['../../native-assets'] } }
  signingConfigs { debug { def testKey = file(System.getenv('QINGZHUAN_DEBUG_KEYSTORE') ?: '../../../private-signing/qingzhuan-preview.keystore'); if(testKey.exists()) storeFile testKey; storePassword 'android'; keyAlias 'androiddebugkey'; keyPassword 'android' } }
  buildTypes { debug { signingConfig signingConfigs.debug }; release { signingConfig signingConfigs.debug; minifyEnabled false } }

@@ -60,7 +60,7 @@ fun PreviewCard(
         if (bitmap != null)
             Image(
                 bitmap!!.asImageBitmap(),
-                "图片预览：${file.name}",
+                ui("图片预览：${file.name}"),
                 Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,
             )
@@ -91,6 +91,9 @@ fun FilePreviewDeck(
                 val padding = ((maxWidth - cardSize) / 2).coerceAtLeast(0.dp)
                 val density = LocalDensity.current
                 val elastic=rememberElasticPreviewMotion(with(density){32.dp.toPx()},files.map{it.id})
+                val pagePosition=pager.currentPage+pager.currentPageOffsetFraction
+                val trailing by animateFloatAsState(pagePosition,if(reduced)snap()else spring(dampingRatio=.54f,stiffness=260f),label="stack inertia")
+                val lag=(trailing-pagePosition).coerceIn(-.8f,.8f)
                 val settleScale by animateFloatAsState(if(pager.isScrollInProgress&&!reduced).975f else 1f,if(reduced)snap()else spring(dampingRatio=.62f,stiffness=400f),label="preview settle")
                 HorizontalPager(
                     state = pager,
@@ -107,8 +110,12 @@ fun FilePreviewDeck(
                     val offset = (pager.currentPage - page) + pager.currentPageOffsetFraction
                     Box(
                         Modifier.zIndex(10f - abs(offset)).graphicsLayer {
-                            translationX = offset * with(density) { (cardSize * .66f).toPx() }
-                            rotationZ = -offset.coerceIn(-2f, 2f) * 5f
+                            val depth=abs(offset).coerceAtMost(2f)
+                            val fan=if(reduced)0f else lag*(.5f+depth*.45f)
+                            translationX = offset * with(density) { (cardSize * .66f).toPx() }+fan*with(density){(cardSize*.16f).toPx()}
+                            rotationZ = -offset.coerceIn(-2f, 2f) * 5f+fan*9f
+                            rotationY=if(reduced)0f else fan*6f
+                            cameraDistance=18f*size.width
                             val s = 1f - .075f * abs(offset).coerceAtMost(2f)
                             scaleX = s
                             scaleY = s
@@ -129,7 +136,7 @@ fun FilePreviewDeck(
             fontSize = 16.sp,
         )
         Spacer(Modifier.height(7.dp))
-        Text(
+        UiText(
             if (files.size == 1) formatSize(focused.size)
             else "${pager.currentPage+1} / ${files.size} · ${formatSize(files.sumOf{it.size})}",
             fontSize = 12.sp,

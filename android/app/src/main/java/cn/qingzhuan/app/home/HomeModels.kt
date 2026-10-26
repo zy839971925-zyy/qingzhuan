@@ -114,8 +114,8 @@ val HOME_TOOLS =
 fun formatSize(n: Long) =
     when {
         n < 1024 -> "$n B"
-        n < 1048576 -> "%.1f KiB".format(n / 1024.0)
-        else -> "%.1f MiB".format(n / 1048576.0)
+        n < 1048576 -> "%.1f KiB".format(java.util.Locale.ROOT,n / 1024.0)
+        else -> "%.1f MiB".format(java.util.Locale.ROOT,n / 1048576.0)
     }
 
 class HomeActions(
@@ -140,6 +140,8 @@ class HomeActions(
     val acknowledge: (String) -> Unit = {},
     val openInput: (String) -> Unit = {},
     val setBackgroundStyle: (BackgroundStyle) -> Unit = {},
+    val languageMode:()->String={"system"},
+    val setLanguage:(String)->Unit={},
 )
 
 fun normalizedSuffix(name: String): String {

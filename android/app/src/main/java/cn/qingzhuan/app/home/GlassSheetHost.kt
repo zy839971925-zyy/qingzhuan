@@ -45,6 +45,7 @@ fun GlassSheetHost(
     val active = state.currentState || state.targetState || !state.isIdle
     SideEffect { onVisible(active) }
     BackHandler(active) { if (name != null) onClose() }
+    val pane=ui("轻转操作面板");val closeLabel=ui("关闭操作面板");val dragLabel=ui("向下拖动关闭面板")
     val c = MaterialTheme.colorScheme
     val shape = RoundedCornerShape(topStart=32.dp, topEnd=32.dp)
     val dark = c.background.luminance() < .5f
@@ -54,10 +55,10 @@ fun GlassSheetHost(
         enter=fadeIn(if(reduced)snap() else tween(220)),
         exit=fadeOut(if(reduced)snap() else tween(220)),
     ) {
-        BoxWithConstraints(Modifier.fillMaxSize().imePadding().semantics { isTraversalGroup=true; paneTitle="轻转操作面板" }) {
+        BoxWithConstraints(Modifier.fillMaxSize().imePadding().semantics { isTraversalGroup=true; paneTitle=pane }) {
             Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha=if(dark).30f else .16f))
                 .clickable(interactionSource=remember{MutableInteractionSource()},indication=null,onClick=onClose)
-                .semantics { contentDescription="关闭操作面板" })
+                .semantics { contentDescription=closeLabel })
             val sheetBackdrop=rememberLayerBackdrop()
             val focus=remember{FocusRequester()}
             val scope=rememberCoroutineScope()
@@ -96,7 +97,7 @@ fun GlassSheetHost(
                                 onDragCancel={restore()},
                                 onDragEnd={if(dragOffset>threshold)onClose()else restore()},
                             )
-                        }.semantics{contentDescription="向下拖动关闭面板"},contentAlignment=Alignment.Center) {
+                        }.semantics{contentDescription=dragLabel},contentAlignment=Alignment.Center) {
                             Box(Modifier.size(30.dp,4.dp).background(c.onSurfaceVariant.copy(alpha=.4f),RoundedCornerShape(2.dp)))
                         }
                         AnimatedContent(

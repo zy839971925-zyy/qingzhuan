@@ -39,5 +39,5 @@ fun Glyph(
             "check-square" -> R.drawable.qz_check_square
             else -> R.drawable.qz_file
         }
-    Icon(painterResource(id), description, modifier, tint = color)
+    Icon(painterResource(id), description?.let{ui(it)}, modifier, tint = color)
 }

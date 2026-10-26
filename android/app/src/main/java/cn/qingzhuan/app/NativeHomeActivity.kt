@@ -144,7 +144,7 @@ class NativeHomeActivity : ComponentActivity() {
                     false
                 }
             val power = (getSystemService(POWER_SERVICE) as PowerManager).isPowerSaveMode
-            NativeHome(
+            UiLanguageProvider { NativeHome(
                 snapshot,
                 conversionOutcome,
                 newIds,
@@ -155,7 +155,7 @@ class NativeHomeActivity : ComponentActivity() {
                 mode,
                 backgroundStyle,
                 actions(),
-            )
+            ) }
             LaunchedEffect(Unit) {
                 withFrameNanos {}
                 StartupDiagnostics.ready()
@@ -211,7 +211,7 @@ class NativeHomeActivity : ComponentActivity() {
     }
 
     private fun notice(s: String) {
-        runOnUiThread { Toast.makeText(this, s, Toast.LENGTH_LONG).show() }
+        runOnUiThread { Toast.makeText(this, AppText.text(this,s), Toast.LENGTH_LONG).show() }
     }
 
     private inline fun guarded(work: () -> Unit) {
@@ -276,6 +276,8 @@ class NativeHomeActivity : ComponentActivity() {
             removeOutputs = { ids ->
                 guarded { session.deleteSelected(JSONArray(ids).toString()) }
             },
+            languageMode={ AppText.mode(this) },
+            setLanguage={AppText.setLanguage(this,it);uiEpoch++},
             setTheme = { mode ->
                 getSharedPreferences("appearance", 0).edit().putString("theme", mode).apply()
                 uiEpoch++
@@ -434,7 +436,7 @@ class NativeHomeActivity : ComponentActivity() {
         i.clipData = ClipData.newRawUri("轻转文件", uri)
         i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         external = true
-        startActivity(if (share) Intent.createChooser(i, "分享文件") else i)
+        startActivity(if (share) Intent.createChooser(i, AppText.text(this,"分享文件")) else i)
     }
 
     @Deprecated("Host-owned durable SAF inbox")
@@ -511,6 +513,7 @@ class NativeHomeActivity : ComponentActivity() {
 
     private val appearanceListener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
         runOnUiThread {
+            if (key == "language")uiEpoch++
             if (key != null && key.startsWith("background")) backgroundStyle = readBackground()
             if (key == "background-error") {
                 prefs.getString(key, null)?.let { notice(it) }
@@ -527,6 +530,8 @@ class NativeHomeActivity : ComponentActivity() {
             p.getLong("background-revision", 0),
             p.getString("background-color", "DFE9E5") ?: "DFE9E5",
             p.getString("background-preset", "mist") ?: "mist",
+            p.getFloat("background-light-overlay",.68f),
+            p.getFloat("background-dark-overlay",.72f),
         ))
     }
 
@@ -537,7 +542,9 @@ class NativeHomeActivity : ComponentActivity() {
             .putString("background",style.mode)
             .putFloat("background-blur",style.blur)
             .putString("background-color",style.colorHex)
-            .putString("background-preset",style.preset).apply()
+            .putString("background-preset",style.preset)
+            .putFloat("background-light-overlay",style.lightOverlay)
+            .putFloat("background-dark-overlay",style.darkOverlay).apply()
         backgroundStyle=readBackground()
     }
 

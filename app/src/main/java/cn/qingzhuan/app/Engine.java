@@ -43,7 +43,7 @@ public final class Engine {
         for(int i=0;i<inputs.size();i++){
             check.check();File f=inputs.get(i);progress.set("正在处理 "+f.getName(),(int)(i*100f/inputs.size()));String base=Core.stem(f.getName());
             switch(tool){
-                case "image":try{Bitmap b=image(f);try{saveBitmap(b,out(base+"."+target),target);}finally{b.recycle();}}catch(OutOfMemoryError e){throw new IOException("图片过大，请选择更小的输出尺寸");}break;
+                case "image":try{Bitmap b=image(f);try{saveBitmap(b,out(base+"."+target),target,qualityFor(true));}finally{b.recycle();}}catch(OutOfMemoryError e){throw new IOException("图片过大，请选择更小的输出尺寸");}break;
                 case "pdfimage":pdfImages(f,target);break;
                 case "split":split(f);break;
                 case "document":document(f,target);break;
@@ -66,16 +66,33 @@ public final class Engine {
     Bitmap image(File f)throws Exception{
         BitmapFactory.Options bo=new BitmapFactory.Options();bo.inJustDecodeBounds=true;BitmapFactory.decodeFile(f.getPath(),bo);
         if(bo.outWidth<1||bo.outHeight<1)throw new IOException("无法解码图片："+f.getName()+"。HEIC/AVIF 等格式取决于系统支持；GIF 只转换首帧。");
-        int edge=options.optInt("edge",4096);if(edge<=0||edge>4096)edge=4096;int sample=1;while(Math.max(bo.outWidth,bo.outHeight)/sample>edge*1.4)sample*=2;
-        bo=new BitmapFactory.Options();bo.inSampleSize=sample;Bitmap b=BitmapFactory.decodeFile(f.getPath(),bo);if(b==null)throw new IOException("图片解码失败");
         Matrix m=new Matrix();try{ExifInterface exif=new ExifInterface(f.getPath());int rot=exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,1);switch(rot){case 2:m.setScale(-1,1);break;case 3:m.setRotate(180);break;case 4:m.setScale(1,-1);break;case 5:m.setRotate(90);m.postScale(-1,1);break;case 6:m.setRotate(90);break;case 7:m.setRotate(270);m.postScale(-1,1);break;case 8:m.setRotate(270);break;}}catch(IOException ignored){}
-        if(!m.isIdentity()){Bitmap r=Bitmap.createBitmap(b,0,0,b.getWidth(),b.getHeight(),m,true);if(r!=b)b.recycle();b=r;}
-        if(Math.max(b.getWidth(),b.getHeight())>edge){float ratio=edge/(float)Math.max(b.getWidth(),b.getHeight());Bitmap r=Bitmap.createScaledBitmap(b,Math.max(1,Math.round(b.getWidth()*ratio)),Math.max(1,Math.round(b.getHeight()*ratio)),true);if(r!=b)b.recycle();b=r;}return b;
+        int orientation=1;try{orientation=new ExifInterface(f.getPath()).getAttributeInt(ExifInterface.TAG_ORIENTATION,1);}catch(IOException ignored){}
+        boolean rotated=orientation>=5&&orientation<=8;
+        ImageTransformPolicy plan=ImageTransformPolicy.resolve(rotated?bo.outHeight:bo.outWidth,rotated?bo.outWidth:bo.outHeight,
+            options.optBoolean("imageAdvanced",false),opt("imageSize","original"),options.optInt("imageWidth",1920),options.optInt("imageHeight",1080),options.optBoolean("imageAspect",true),options.optInt("imageQuality",100));
+        int sample=plan.sampleSize(bo.outWidth,bo.outHeight,rotated);
+        long decoded=(((long)bo.outWidth+sample-1)/sample)*(((long)bo.outHeight+sample-1)/sample);
+        long needed=decoded*8L+(long)plan.width*plan.height*8L+16L*1024*1024;
+        Runtime rt=Runtime.getRuntime();long free=rt.maxMemory()-(rt.totalMemory()-rt.freeMemory());
+        if(needed>free*.85)throw new IOException("原尺寸图片内存需求过高，请开启高级设置选择4K或更小尺寸");
+        bo=new BitmapFactory.Options();bo.inSampleSize=sample;bo.inPreferredConfig=Bitmap.Config.ARGB_8888;bo.inPreferredColorSpace=ColorSpace.get(ColorSpace.Named.SRGB);
+        Bitmap b=null;
+        try{
+            b=BitmapFactory.decodeFile(f.getPath(),bo);if(b==null)throw new IOException("图片解码失败");
+            if(!m.isIdentity()){Bitmap r=Bitmap.createBitmap(b,0,0,b.getWidth(),b.getHeight(),m,true);if(r!=b)b.recycle();b=r;}
+            if(b.getWidth()!=plan.width||b.getHeight()!=plan.height){Bitmap r=Bitmap.createScaledBitmap(b,plan.width,plan.height,true);if(r!=b)b.recycle();b=r;}
+            return b;
+        }catch(OutOfMemoryError error){if(b!=null&&!b.isRecycled())b.recycle();throw new IOException("原尺寸图片内存需求过高，请开启高级设置选择4K或更小尺寸",error);}
+        catch(Exception error){if(b!=null&&!b.isRecycled())b.recycle();throw error;}
     }
-    void saveBitmap(Bitmap b,File f,String target)throws IOException{
+
+    int qualityFor(boolean imageConversion){return imageConversion?(options.optBoolean("imageAdvanced",false)?options.optInt("imageQuality",100):100):options.optInt("quality",100);}
+    void saveBitmap(Bitmap b,File f,String target)throws IOException{saveBitmap(b,f,target,qualityFor(false));}
+    void saveBitmap(Bitmap b,File f,String target,int quality)throws IOException{
         Bitmap actual=b;if(target.equals("jpg")&&b.hasAlpha()){actual=Bitmap.createBitmap(b.getWidth(),b.getHeight(),Bitmap.Config.ARGB_8888);Canvas c=new Canvas(actual);c.drawColor(Color.WHITE);c.drawBitmap(b,0,0,null);}
-        Bitmap.CompressFormat fmt=target.equals("png")?Bitmap.CompressFormat.PNG:target.equals("webp")?Bitmap.CompressFormat.WEBP:Bitmap.CompressFormat.JPEG;
-        try(OutputStream o=new FileOutputStream(f)){if(!actual.compress(fmt,Math.max(20,Math.min(100,options.optInt("quality",88))),o))throw new IOException("图片编码失败");}finally{if(actual!=b)actual.recycle();}
+        Bitmap.CompressFormat fmt=target.equals("png")?Bitmap.CompressFormat.PNG:target.equals("webp")?(android.os.Build.VERSION.SDK_INT>=30?(quality<100?Bitmap.CompressFormat.WEBP_LOSSY:Bitmap.CompressFormat.WEBP_LOSSLESS):Bitmap.CompressFormat.WEBP):Bitmap.CompressFormat.JPEG;
+        try(OutputStream o=new FileOutputStream(f)){if(!actual.compress(fmt,Math.max(20,Math.min(100,quality)),o))throw new IOException("图片编码失败");}finally{if(actual!=b)actual.recycle();}
     }
     void imagesPdf(List<File> fs)throws Exception{
         try(ManagedPdf pdf=new ManagedPdf()){

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="cn.qingzhuan.app.Refined154Test" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-10-25T23:17:18.431Z" hostname="e02f7d3371b6" time="1.775">
+  <properties/>
+  <testcase name="manualLanguageUsesActualCatalogAndPreservesFileNamesOnAndroid28" classname="cn.qingzhuan.app.Refined154Test" time="1.514"/>
+  <testcase name="realImageEngineDoesNotApplyLegacyEdgeWhenAdvancedIsOff" classname="cn.qingzhuan.app.Refined154Test" time="0.26"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[[Robolectric] WARN: Android SDK 36 requires Java 21 (have Java 17). Tests won't be run on SDK 36 unless explicitly requested.
+]]></system-err>
+</testsuite>

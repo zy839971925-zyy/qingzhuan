@@ -18,12 +18,12 @@ public final class ConversionService extends Service {
         Intent intent=new Intent(context,ConversionService.class).putExtra("task",id).putExtra("media",media);
         context.startForegroundService(intent);
     }
-    @Override public void onCreate(){super.onCreate();NotificationChannel channel=new NotificationChannel(CHANNEL,"转换进度",NotificationManager.IMPORTANCE_LOW);channel.setDescription("正在进行的本地转换、导入和保存任务");getSystemService(NotificationManager.class).createNotificationChannel(channel);}
+    @Override public void onCreate(){super.onCreate();NotificationChannel channel=new NotificationChannel(CHANNEL,AppText.text(this,"转换进度"),NotificationManager.IMPORTANCE_LOW);channel.setDescription(AppText.text(this,"正在进行的本地转换、导入和保存任务"));getSystemService(NotificationManager.class).createNotificationChannel(channel);}
     private Notification notification(String title,String text,int value,boolean active){
         Intent open=new Intent(this,StartupActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP).putExtra("showTask",lastTask);
         PendingIntent content=PendingIntent.getActivity(this,152,open,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
-        Notification.Builder b=new Notification.Builder(this,CHANNEL).setSmallIcon(R.drawable.qz_notification).setContentTitle(title).setContentText(text).setContentIntent(content).setOnlyAlertOnce(true).setOngoing(active).setAutoCancel(!active).setCategory(Notification.CATEGORY_PROGRESS);
-        if(active){b.setProgress(100,Math.max(0,value),value<0);Intent cancel=new Intent(this,ConversionService.class).setAction("cancel").putExtra("task",lastTask);b.addAction(new Notification.Action.Builder(null,"取消",PendingIntent.getService(this,153,cancel,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE)).build());}
+        Notification.Builder b=new Notification.Builder(this,CHANNEL).setSmallIcon(R.drawable.qz_notification).setContentTitle(AppText.text(this,title)).setContentText(AppText.text(this,text)).setContentIntent(content).setOnlyAlertOnce(true).setOngoing(active).setAutoCancel(!active).setCategory(Notification.CATEGORY_PROGRESS);
+        if(active){b.setProgress(100,Math.max(0,value),value<0);Intent cancel=new Intent(this,ConversionService.class).setAction("cancel").putExtra("task",lastTask);b.addAction(new Notification.Action.Builder(null,AppText.text(this,"取消"),PendingIntent.getService(this,153,cancel,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE)).build());}
         return b.build();
     }
     @Override public int onStartCommand(Intent intent,int flags,int startId){

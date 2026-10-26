@@ -74,8 +74,8 @@ fun AmbientBackground(
         )
         Canvas(Modifier.fillMaxSize()) {
             drawRect(
-                if (dark) Color(0xFF101720).copy(alpha = if(style.mode=="preset").78f else .72f)
-                else Color(0xFFF7F8F3).copy(alpha = if(style.mode=="preset").10f else .68f)
+                if (dark) Color(0xFF101720).copy(alpha = if(style.mode=="preset").78f else style.darkOverlay)
+                else Color(0xFFF7F8F3).copy(alpha = if(style.mode=="preset").10f else style.lightOverlay)
             )
         }
     } else if(style.mode=="solid") {

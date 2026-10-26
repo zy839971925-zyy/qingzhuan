@@ -1,4 +1,4 @@
-# 轻转 1.5.3
+# 轻转 1.5.4 / Qingzhuan 1.5.4
 
 组合应用以 GPL-3.0-only 提供，见 LICENSE。Android 转换引擎保留其既有第三方许可。
 
@@ -3825,3 +3825,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 主球回退到1.4 Kyant效果；原参考GLASS/LENS文件与历史保留，当前主球不再调用。新增玻璃分段/格式网格、私有原生预览、GIF/MP4编码和前台转换服务。GPL/Junrar组合许可兼容问题仍未解决，不宣称测试包具有发行豁免。
 
 1.5.3 原创抽象预设壁纸由scripts/generate_wallpapers.py解析生成，无外部图片输入。壁纸美术资源及生成器以CC0-1.0提供；应用其他代码许可不变。
+
+1.5.4修改：原尺寸图片策略、可选高级尺寸/质量、独立深浅色照片遮罩、中英文呈现、分层弹簧卡片。原转换引擎与第三方许可保留。
+1.5.4 changes: original-size image policy, optional advanced size/quality, per-theme photo overlays, bilingual presentation, spring-driven card layers. Existing engine and third-party licenses are retained.

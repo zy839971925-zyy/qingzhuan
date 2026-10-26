@@ -57,6 +57,7 @@ fun NativeSheet(
     reduced: Boolean = false,
     backdrop: com.kyant.backdrop.Backdrop,
     onVisible: (Boolean) -> Unit = {},
+    targetFormat:String? = null,
 ) {
     val c = MaterialTheme.colorScheme
     GlassSheetHost(name,backdrop,reduced,onClose,onVisible) { activeName, dismiss ->
@@ -68,7 +69,7 @@ fun NativeSheet(
                 .padding(bottom = 28.dp)
         ) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text(
+                UiText(
                     when (name) {
                         "menu" -> "轻转"
                         "inputs" -> "导入记录"
@@ -97,7 +98,7 @@ fun NativeSheet(
                         )
                         .forEach { (icon, title, next) ->
                             ListItem(
-                                headlineContent = { Text(title) },
+                                headlineContent = { UiText(title) },
                                 leadingContent = { Glyph(icon) },
                                 modifier = Modifier.clickable { onNavigate(next) },
                                 colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
@@ -109,8 +110,7 @@ fun NativeSheet(
                 "tools" ->
                     available.forEach { t ->
                         ListItem(
-                            headlineContent = { Text(t.title) },
-                            supportingContent = { Text(t.description) },
+                            headlineContent = { UiText(t.title) },
                             trailingContent = { if (t.id == tool?.id) Glyph("check") },
                             modifier =
                                 Modifier.clickable {
@@ -125,11 +125,12 @@ fun NativeSheet(
                         val duration=selectedFiles.ifEmpty { snapshot.inputs }.filter { tool!!.id in it.tools }.map { it.durationMs }.filter { it>0 }.minOrNull()?:0
                         MediaOptionsPanel(tool!!.id,duration,options,onOptions,reduced)
                     }
-                    Text(tool?.description ?: "", color = c.onSurfaceVariant)
+                    if(tool?.id in listOf("image","imagepdf"))ImageOptionsPanel(options,onOptions,targetFormat,reduced)
+                    else UiText(tool?.description ?: "", color = c.onSurfaceVariant)
                     Spacer(Modifier.height(18.dp))
                     val keys =
                         when (tool?.id) {
-                            "image" -> listOf("edge", "quality")
+                            "image", "imagepdf" -> emptyList()
                             "pdfimage" -> listOf("edge", "quality", "pages", "password")
                             "split" -> listOf("pages", "password")
                             "document" -> listOf("encoding", "password")
@@ -139,13 +140,13 @@ fun NativeSheet(
                             "merge" -> listOf("password")
                             else -> emptyList()
                         }
-                    if (keys.isEmpty() && tool?.id !in listOf("gif","video","videoframe","motionvideo")) Text("此工具无需额外设置", color = c.onSurfaceVariant)
+                    if (keys.isEmpty() && tool?.id !in listOf("gif","video","videoframe","motionvideo","image","imagepdf")) UiText("此工具无需额外设置", color = c.onSurfaceVariant)
                     keys.forEach { k ->
                         OutlinedTextField(
                             value = options[k] ?: "",
                             onValueChange = { onOptions(options + (k to it)) },
                             label = {
-                                Text(
+                                UiText(
                                     when (k) {
                                         "edge" -> "最长边（1280 / 2048 / 4096）"
                                         "quality" -> "画质（20–100）"
@@ -166,7 +167,7 @@ fun NativeSheet(
                 }
                 "background-import" -> {
                     ListItem(
-                        headlineContent = { Text("从照片导入") },
+                        headlineContent = { UiText("从照片导入") },
                         leadingContent = { Glyph("file-image") },
                         modifier =
                             Modifier.clickable {
@@ -176,7 +177,7 @@ fun NativeSheet(
                         colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
                     )
                     ListItem(
-                        headlineContent = { Text("从文件导入") },
+                        headlineContent = { UiText("从文件导入") },
                         leadingContent = { Glyph("folder") },
                         modifier =
                             Modifier.clickable {
@@ -188,7 +189,7 @@ fun NativeSheet(
                 }
                 "import" -> {
                     ListItem(
-                        headlineContent = { Text("从照片导入") },
+                        headlineContent = { UiText("从照片导入") },
                         leadingContent = { Glyph("file-image") },
                         modifier =
                             Modifier.clickable {
@@ -198,7 +199,7 @@ fun NativeSheet(
                         colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
                     )
                     ListItem(
-                        headlineContent = { Text("从文件导入") },
+                        headlineContent = { UiText("从文件导入") },
                         leadingContent = { Glyph("folder") },
                         modifier =
                             Modifier.clickable {
@@ -210,24 +211,28 @@ fun NativeSheet(
                 }
                 "background" -> BackgroundSettings(background,actions,reduced){onNavigate("background-import")}
                 "settings" -> {
-                    Text("外观", style = MaterialTheme.typography.titleSmall)
+                    UiText("语言",style=MaterialTheme.typography.titleSmall)
+                    Spacer(Modifier.height(12.dp))
+                    GlassSegments(listOf(GlassChoice("system","跟随系统"),GlassChoice("zh","中文"),GlassChoice("en","English")),actions.languageMode(),Modifier.fillMaxWidth(),reduced=reduced,onSelect=actions.setLanguage)
+                    Spacer(Modifier.height(22.dp))
+                    UiText("外观", style = MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.height(12.dp))
                     GlassSegments(listOf(GlassChoice("system","自动"),GlassChoice("light","浅色"),GlassChoice("dark","深色")),mode,Modifier.fillMaxWidth(),reduced=reduced,onSelect=actions.setTheme)
                     HorizontalDivider(Modifier.padding(vertical = 16.dp))
-                    Text(
+                    UiText(
                         "所有转换在本机完成。最多 20 份输入、单份 512 MiB、合计 1 GiB。文档只重建文字，无 OCR；MP3编码暂不支持；视频转码依赖本机编码器。",
                         color = c.onSurfaceVariant,
                         lineHeight = 23.sp,
                     )
                     if (android.os.Build.VERSION.SDK_INT < 33)
-                        Text(
+                        UiText(
                             "当前系统低于 Android 13：支持文件转换，但不能呈现 RuntimeShader 的完整玻璃折射。",
                             color = c.error,
                             modifier = Modifier.padding(top = 12.dp),
                         )
-                    TextButton({ onNavigate("background") }) { Text("背景与玻璃") }
-                    TextButton({ onNavigate("licenses") }) { Text("开源许可与修改说明") }
-                    Text(
+                    TextButton({ onNavigate("background") }) { UiText("背景与玻璃") }
+                    TextButton({ onNavigate("licenses") }) { UiText("开源许可与修改说明") }
+                    UiText(
                         "${BuildConfig.VERSION_NAME} · Compose / Backdrop 1.0.6",
                         fontSize = 12.sp,
                         color = c.onSurfaceVariant,
@@ -284,7 +289,7 @@ private fun FileList(
         ) {
             selected = if (selected.size == files.size) emptySet() else files.map { it.id }.toSet()
         }
-        Text(
+        UiText(
             if (selected.isEmpty()) "${files.size} 份文件" else "已选 ${selected.size} 项",
             Modifier.weight(1f),
             color = c.onSurfaceVariant,
@@ -303,20 +308,20 @@ private fun FileList(
     }
     AnimatedVisibility(confirming,enter=if(reduced)EnterTransition.None else fadeIn()+expandVertically(),exit=if(reduced)ExitTransition.None else fadeOut()+shrinkVertically()) {
         Column(Modifier.fillMaxWidth().padding(top=16.dp).controlGlass(LocalControlBackdrop.current, androidx.compose.foundation.shape.RoundedCornerShape(22.dp)).padding(18.dp)) {
-            Text("删除 ${selected.size} 项？",style=MaterialTheme.typography.titleMedium)
-            Text("只删除应用内部副本，原文件和已保存的副本不受影响。",color=c.onSurfaceVariant,modifier=Modifier.padding(top=8.dp))
+            UiText("删除 ${selected.size} 项？",style=MaterialTheme.typography.titleMedium)
+            UiText("只删除应用内部副本，原文件和已保存的副本不受影响。",color=c.onSurfaceVariant,modifier=Modifier.padding(top=8.dp))
             Row(Modifier.align(Alignment.End)) {
-                TextButton({confirming=false}){Text("保留")}
+                TextButton({confirming=false}){UiText("保留")}
                 TextButton({
                     confirming=false
                     if(inputs)actions.removeInputs(selectedIds)else actions.removeOutputs(selectedIds)
                     selected=emptySet()
-                },enabled=selectedIds.isNotEmpty()&&!snapshot.busy){Text("删除",color=c.error)}
+                },enabled=selectedIds.isNotEmpty()&&!snapshot.busy){UiText("删除",color=c.error)}
             }
         }
     }
     if (files.isEmpty())
-        Text(
+        UiText(
             if (inputs) "还没有导入文件" else "还没有转换结果",
             color = c.onSurfaceVariant,
             modifier = Modifier.padding(vertical = 32.dp),
@@ -337,7 +342,7 @@ private fun FileList(
                 PreviewCard(f,actions,52.dp,output=!inputs){if(inputs)actions.openInput(f.id)else actions.open(f.id)}
                 Column(Modifier.weight(1f).padding(start = 12.dp)) {
                     Text(f.name, maxLines = 2, overflow = TextOverflow.Ellipsis, fontSize = 15.sp)
-                    Text(formatSize(f.size), fontSize = 12.sp, color = c.onSurfaceVariant)
+                    UiText(formatSize(f.size), fontSize = 12.sp, color = c.onSurfaceVariant)
                 }
             }
             Row(Modifier.align(Alignment.End), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
@@ -368,7 +373,7 @@ private fun FileList(
     }
     }
     if (!inputs && files.isNotEmpty())
-        Text(
+        UiText(
             "图片、视频默认保存到相册；其他文件选择保存位置。",
             fontSize = 12.sp,
             color = c.onSurfaceVariant,

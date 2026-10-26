@@ -33,6 +33,8 @@ object BackgroundCatalog {
         blur=if(style.blur.isFinite())style.blur.coerceIn(0f,40f)else 18f,
         colorHex=validHex(style.colorHex)?:"DFE9E5",
         preset=style.preset.takeIf {it in ids}?:"mist",
+        lightOverlay=if(style.lightOverlay.isFinite())style.lightOverlay.coerceIn(0f,1f)else .68f,
+        darkOverlay=if(style.darkOverlay.isFinite())style.darkOverlay.coerceIn(0f,1f)else .72f,
     )
 }
 
@@ -47,12 +49,13 @@ fun BackgroundSettings(style:BackgroundStyle,actions:HomeActions,reduced:Boolean
         if(style.mode=="preset") {
             Row(horizontalArrangement=Arrangement.spacedBy(12.dp)) {
                 BackgroundCatalog.ids.forEachIndexed { index,id ->
+                    val spoken=ui(BackgroundCatalog.titles[index])
                     Column(Modifier.weight(1f).clip(RoundedCornerShape(18.dp))
                         .border(if(style.preset==id)1.5.dp else .6.dp,c.outline,RoundedCornerShape(18.dp))
                         .clickable {actions.setBackgroundStyle(style.copy(preset=id))}
-                        .semantics {role=Role.RadioButton; selected=style.preset==id;contentDescription=BackgroundCatalog.titles[index]},horizontalAlignment=Alignment.CenterHorizontally) {
+                        .semantics {role=Role.RadioButton; selected=style.preset==id;contentDescription=spoken},horizontalAlignment=Alignment.CenterHorizontally) {
                         Image(painterResource(BackgroundCatalog.thumb(id)),null,Modifier.fillMaxWidth().height(112.dp),contentScale=ContentScale.Crop)
-                        Text(BackgroundCatalog.titles[index],fontSize=12.sp,modifier=Modifier.padding(10.dp))
+                        UiText(BackgroundCatalog.titles[index],fontSize=12.sp,modifier=Modifier.padding(10.dp))
                     }
                 }
             }
@@ -60,24 +63,29 @@ fun BackgroundSettings(style:BackgroundStyle,actions:HomeActions,reduced:Boolean
         if(style.mode=="solid") {
             FlowRow(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp),verticalArrangement=Arrangement.spacedBy(10.dp)) {
                 BackgroundCatalog.palette.forEach { hex ->
+                    val spoken=ui("颜色 #$hex")
                     Box(Modifier.size(48.dp).clip(RoundedCornerShape(14.dp))
                         .background(BackgroundCatalog.color(hex))
                         .border(if(style.colorHex==hex)2.dp else .5.dp,c.outline,RoundedCornerShape(14.dp))
                         .clickable {actions.setBackgroundStyle(style.copy(colorHex=hex))}
-                        .semantics {role=Role.RadioButton;selected=style.colorHex==hex;contentDescription="颜色 #$hex"})
+                        .semantics {role=Role.RadioButton;selected=style.colorHex==hex;contentDescription=spoken})
                 }
             }
             var hex by remember(style.colorHex){mutableStateOf(style.colorHex)}
             val valid=BackgroundCatalog.validHex(hex)
-            OutlinedTextField(hex,{hex=it.take(7)},label={Text("自定义颜色 · HEX")},prefix={Text("#")},singleLine=true,
+            OutlinedTextField(hex,{hex=it.take(7)},label={UiText("自定义颜色 · HEX")},prefix={UiText("#")},singleLine=true,
                 isError=valid==null,keyboardOptions=androidx.compose.foundation.text.KeyboardOptions(capitalization=KeyboardCapitalization.Characters),modifier=Modifier.fillMaxWidth())
-            Button({valid?.let {actions.setBackgroundStyle(style.copy(colorHex=it))}},enabled=valid!=null&&valid!=style.colorHex,modifier=Modifier.align(Alignment.End)){Text("应用颜色")}
-            Text("颜色随深浅外观柔和适配，保持文字清晰。",fontSize=12.sp,color=c.onSurfaceVariant)
+            Button({valid?.let {actions.setBackgroundStyle(style.copy(colorHex=it))}},enabled=valid!=null&&valid!=style.colorHex,modifier=Modifier.align(Alignment.End)){UiText("应用颜色")}
+            UiText("颜色随深浅外观柔和适配，保持文字清晰。",fontSize=12.sp,color=c.onSurfaceVariant)
         }
         if(style.mode=="custom") {
-            TextButton(onImport){Glyph("file-image",modifier=Modifier.size(18.dp));Spacer(Modifier.width(8.dp));Text("更换背景图片")}
+            TextButton(onImport){Glyph("file-image",modifier=Modifier.size(18.dp));Spacer(Modifier.width(8.dp));UiText("更换背景图片")}
+            val dark=MaterialTheme.colorScheme.background.luminance()<.5f
+            var strength by remember(style.lightOverlay,style.darkOverlay,dark){mutableFloatStateOf(if(dark)style.darkOverlay else style.lightOverlay)}
+            UiText((if(dark)"深色遮罩"else"浅色遮罩")+" · ${(strength*100).toInt()}%",style=MaterialTheme.typography.titleSmall)
+            Slider(strength,{strength=it;actions.setBackgroundStyle(if(dark)style.copy(darkOverlay=it)else style.copy(lightOverlay=it))},valueRange=0f..1f)
             var blur by remember(style.blur){mutableFloatStateOf(style.blur)}
-            Text("模糊 · ${blur.toInt()}",fontSize=13.sp,color=c.onSurfaceVariant)
+            UiText("模糊 · ${blur.toInt()}",fontSize=13.sp,color=c.onSurfaceVariant)
             Slider(blur,{blur=it},onValueChangeFinished={actions.setBackgroundStyle(style.copy(blur=blur))},valueRange=0f..40f)
         }
     }

@@ -191,4 +191,6 @@ data class BackgroundStyle(
     val revision: Long = 0,
     val colorHex: String = "DFE9E5",
     val preset: String = "mist",
+    val lightOverlay: Float = .68f,
+    val darkOverlay: Float = .72f,
 )

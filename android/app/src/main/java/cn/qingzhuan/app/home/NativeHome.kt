@@ -117,7 +117,10 @@ private fun NativeHomeBody(
             mutableStateOf(
                 mapOf(
                     "edge" to "2048",
-                    "quality" to "88",
+                    "quality" to "100",
+                    "imageAdvanced" to "false",
+                    "imageSize" to "original",
+                    "imageQuality" to "100",
                     "encoding" to "auto",
                     "pages" to "",
                     "password" to "",
@@ -247,7 +250,7 @@ private fun NativeHomeBody(
                 JSONObject(options)
                     .put("target", target)
                     .put("edge", options["edge"]?.toIntOrNull() ?: 2048)
-                    .put("quality", options["quality"]?.toIntOrNull() ?: 88)
+                    .put("quality", if(tool.id in listOf("image","imagepdf"))100 else options["quality"]?.toIntOrNull() ?: 100)
             if (tool.id == "pack" && target != "zip") opts.put("password", "")
             if (
                 !actions.convert(
@@ -335,6 +338,8 @@ private fun NativeHomeBody(
             }
         }
         val currentSubmit by rememberUpdatedState({ submit() })
+        val gestureDescription=ui("液态玻璃转换按钮，向上拖至中央松手")
+        val directStartDescription=ui("直接开始转换")
         val armed = target != null && files.isNotEmpty() && phase == HomePhase.READY && !formatsExpanded
         val visible by
             animateFloatAsState(
@@ -526,7 +531,7 @@ private fun NativeHomeBody(
                                                 Column(Modifier.fillMaxWidth().heightIn(max=(if(landscape)max(90f,h-230)else min(232f,h*.29f)).dp).verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(10.dp)) {
                                                     shown.choices.chunked(columns).forEach { row->
                                                         Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(9.dp)) {
-                                                            row.forEach { choice->GlassButton(GlassChoice(choice.key,choice.label,choice.detail),choice.tool==toolId&&choice.target==target,!busy&&shown==presentation,Modifier.weight(1f)) {toolId=choice.tool;target=choice.target;formatsExpanded=false;actions.haptic()} }
+                                                            row.forEach { choice->GlassButton(GlassChoice(choice.key,choice.label),choice.tool==toolId&&choice.target==target,!busy&&shown==presentation,Modifier.weight(1f)) {toolId=choice.tool;target=choice.target;formatsExpanded=false;actions.haptic()} }
                                                             repeat(columns-row.size){Spacer(Modifier.weight(1f))}
                                                         }
                                                     }
@@ -574,7 +579,7 @@ private fun NativeHomeBody(
                                                     if (dark) Color(0xFF85D5A2)
                                                     else Color(0xFF27824E),
                                             )
-                                            Text(
+                                            UiText(
                                                 "转换完成",
                                                 color =
                                                     if (dark) Color(0xFF85D5A2)
@@ -593,9 +598,9 @@ private fun NativeHomeBody(
                                             fontWeight = FontWeight.Medium,
                                         )
                                         Spacer(Modifier.height(7.dp))
-                                        Text(
+                                        UiText(
                                             formatSize(completed.sumOf { it.size }) +
-                                                (if (completed.size > 1) " · ${completed.size} 份文件"
+                                                (if (completed.size > 1) ui(" · ${completed.size} 份文件")
                                                 else ""),
                                             fontSize = 12.sp,
                                             color = c.onSurfaceVariant,
@@ -628,10 +633,10 @@ private fun NativeHomeBody(
                             .wrapContentSize(Alignment.TopStart, unbounded = true)
                             .size((radius * 2).dp)
                             .semantics {
-                                contentDescription = "液态玻璃转换按钮，向上拖至中央松手"
+                                contentDescription = gestureDescription
                                 customActions =
                                     listOf(
-                                        CustomAccessibilityAction("直接开始转换") {
+                                        CustomAccessibilityAction(directStartDescription) {
                                             if (allowGesture) {
                                                 currentSubmit()
                                                 true
@@ -681,11 +686,14 @@ private fun NativeHomeBody(
                     }
                 }
                 if (armed && !visualBusy)
-                    Text(
-                        "按住玻璃罩，向上滑动以转换",
+                    UiText(
+                        "滑动以开始转换",
                         Modifier.align(Alignment.BottomCenter)
-                            .offset(y = (-(if(h<720)140*scale else 245*scale+26)).dp)
-                            .alpha((1 - p / .3f).coerceIn(0f, 1f)),
+                            .navigationBarsPadding().padding(bottom=18.dp)
+                            .graphicsLayer {
+                                val t=p.coerceIn(0f,1f);alpha=visible*(1-t/.52f).coerceIn(0f,1f);translationY=-t*26.dp.toPx()
+                                if(Build.VERSION.SDK_INT>=31){val b=if(reduced)0f else t*14.dp.toPx();renderEffect=if(b>.1f)android.graphics.RenderEffect.createBlurEffect(b,b,android.graphics.Shader.TileMode.DECAL).asComposeRenderEffect()else null}
+                            },
                         fontSize = 12.sp,
                         color = c.onSurfaceVariant,
                     )
@@ -694,7 +702,7 @@ private fun NativeHomeBody(
                         Modifier.align(Alignment.TopCenter).offset(y = (h * .59f).dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Text(
+                        UiText(
                             if (check > 0) "已完成"
                             else if (snapshot.task.status == "complete") "正在完成" else "正在转换",
                             fontSize = 14.sp,
@@ -704,7 +712,7 @@ private fun NativeHomeBody(
                                 snapshot.task.value >= 0 &&
                                 check == 0f
                         )
-                            Text(
+                            UiText(
                                 "${snapshot.task.value}%",
                                 fontSize = 12.sp,
                                 color = c.onSurfaceVariant,
@@ -715,7 +723,7 @@ private fun NativeHomeBody(
                                 { visualTask?.let(actions.cancel) },
                                 enabled = snapshot.task.status != "cancelling",
                             ) {
-                                Text(
+                                UiText(
                                     if (snapshot.task.status == "cancelling") "正在取消" else "取消",
                                     fontSize = 12.sp,
                                 )
@@ -737,7 +745,7 @@ private fun NativeHomeBody(
                                 .navigationBarsPadding()
                                 .padding(bottom = 40.dp),
                     ) {
-                        Text(
+                        UiText(
                             if (snapshot.task.status == "cancelling") "正在取消" else "取消",
                             fontSize = 12.sp,
                         )
@@ -781,6 +789,7 @@ private fun NativeHomeBody(
                 reduced=reduced,
                 backdrop=backdrop,
                 onVisible={sheetVisible=it},
+                targetFormat=target,
             )
         }
     }
@@ -808,7 +817,7 @@ fun FileEmblem(file: HomeFile, size: Dp) {
             color = c.primary,
         )
         Spacer(Modifier.height(5.dp))
-        Text(
+        UiText(
             file.format
                 .ifEmpty { normalizedSuffix(file.name) }
                 .ifEmpty { "FILE" }
@@ -823,6 +832,7 @@ fun FileEmblem(file: HomeFile, size: Dp) {
 
 @Composable
 private fun UploadLanding(modifier: Modifier, size: Dp, reduced: Boolean, onPick: () -> Unit) {
+    val pickLabel=ui("选择需要转换的文件")
     val c = MaterialTheme.colorScheme
     val transition = rememberInfiniteTransition(label = "upload float")
     val drift by
@@ -834,7 +844,7 @@ private fun UploadLanding(modifier: Modifier, size: Dp, reduced: Boolean, onPick
         )
     Box(
         modifier.size(size).clip(RoundedCornerShape(28.dp)).clickable(onClick = onPick).semantics {
-            contentDescription = "选择需要转换的文件"
+            contentDescription = pickLabel
         }
     ) {
         Canvas(Modifier.fillMaxSize()) {
@@ -895,7 +905,7 @@ private fun UploadLanding(modifier: Modifier, size: Dp, reduced: Boolean, onPick
                 Glyph("plus", modifier = Modifier.size(26.dp), color = c.primary)
             }
         }
-        Text(
+        UiText(
             "选择需要转换的文件",
             Modifier.align(Alignment.Center).offset(y = 69.dp),
             fontSize = 14.sp,

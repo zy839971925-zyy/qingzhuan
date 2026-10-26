@@ -83,8 +83,9 @@ fun GlassSegments(choices:List<GlassChoice>,selectedValue:String?,modifier:Modif
         }) {
             Row(Modifier.fillMaxSize().padding(5.dp).layerBackdrop(labels)) {
                 choices.forEachIndexed { index,choice->
+                    val spoken=ui(choice.label)
                     val labelScale by animateFloatAsState(if(pressFlags[index]&&!reduced)1.065f else 1f,if(reduced)snap()else spring(dampingRatio=.7f,stiffness=600f),label="tab press")
-                    Box(Modifier.weight(1f).fillMaxHeight().graphicsLayer{scaleX=labelScale;scaleY=labelScale}.selectable(selected=index==selected,enabled=enabled,role=Role.Tab,interactionSource=pressSources[index],indication=null){callback(choice.value);settle(index)}.semantics{contentDescription=choice.label},contentAlignment=Alignment.Center) {
+                    Box(Modifier.weight(1f).fillMaxHeight().graphicsLayer{scaleX=labelScale;scaleY=labelScale}.selectable(selected=index==selected,enabled=enabled,role=Role.Tab,interactionSource=pressSources[index],indication=null){callback(choice.value);settle(index)}.semantics{contentDescription=spoken},contentAlignment=Alignment.Center) {
                         GlassLetters(choice.label,index*45,reduced,if(abs(position-index)<.5f&&(selected>=0||dragging))c.onBackground else c.onSurfaceVariant)
                     }
                 }
@@ -105,9 +106,10 @@ fun GlassSegments(choices:List<GlassChoice>,selectedValue:String?,modifier:Modif
 @Composable
 fun GlassMenuButton(expanded:Boolean,enabled:Boolean,reduced:Boolean,onClick:()->Unit) {
     val c=MaterialTheme.colorScheme
+    val spoken=ui(if(expanded)"收起转换格式"else"展开转换格式")
     val angle by animateFloatAsState(if(expanded)180f else 0f,if(reduced)snap()else tween(240),label="format disclosure")
-    Row(Modifier.height(44.dp).controlGlass(LocalControlBackdrop.current,RoundedCornerShape(22.dp)).border(.6.dp,c.outline.copy(alpha=.38f),RoundedCornerShape(22.dp)).clickable(enabled=enabled,onClick=onClick).semantics{role=Role.Button;contentDescription=if(expanded)"收起转换格式"else"展开转换格式"}.padding(horizontal=15.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(10.dp)) {
-        Text("转换为",fontSize=12.sp)
+    Row(Modifier.height(44.dp).controlGlass(LocalControlBackdrop.current,RoundedCornerShape(22.dp)).border(.6.dp,c.outline.copy(alpha=.38f),RoundedCornerShape(22.dp)).clickable(enabled=enabled,onClick=onClick).semantics{role=Role.Button;contentDescription=spoken}.padding(horizontal=15.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+        UiText("转换为",fontSize=12.sp)
         Glyph("chevron-down",modifier=Modifier.size(16.dp).graphicsLayer{rotationZ=angle},color=c.onSurfaceVariant)
     }
 }
@@ -115,19 +117,21 @@ fun GlassMenuButton(expanded:Boolean,enabled:Boolean,reduced:Boolean,onClick:()-
 @Composable
 fun GlassButton(choice:GlassChoice,selected:Boolean=false,enabled:Boolean=true,modifier:Modifier=Modifier,onClick:()->Unit) {
     val c=MaterialTheme.colorScheme
-    Column(modifier.height(if(choice.detail.isEmpty())48.dp else 66.dp).controlGlass(LocalControlBackdrop.current,RoundedCornerShape(20.dp))
+    val spoken=ui(choice.label)
+    Column(modifier.height(52.dp).controlGlass(LocalControlBackdrop.current,RoundedCornerShape(20.dp))
         .background(c.primary.copy(alpha=if(selected).065f else 0f),RoundedCornerShape(20.dp))
         .border(if(selected)1.dp else .6.dp,c.outline.copy(alpha=if(selected).95f else .38f),RoundedCornerShape(20.dp))
-        .clickable(enabled=enabled,onClick=onClick).semantics{this.selected=selected;role=Role.Button;contentDescription=choice.label+(if(choice.detail.isEmpty())"" else "，${choice.detail}")}.padding(horizontal=6.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center) {
+        .clickable(enabled=enabled,onClick=onClick).semantics{this.selected=selected;role=Role.Button;contentDescription=spoken}.padding(horizontal=6.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center) {
         Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(4.dp)) {
-            Text(choice.label,fontSize=13.sp,fontWeight=FontWeight.Medium,maxLines=1,overflow=TextOverflow.Ellipsis)
+            UiText(choice.label,fontSize=13.sp,fontWeight=FontWeight.Medium,maxLines=1,overflow=TextOverflow.Ellipsis)
             if(selected)Glyph("check",modifier=Modifier.size(12.dp),color=c.primary)
         }
-        if(choice.detail.isNotEmpty()){Spacer(Modifier.height(3.dp));Text(choice.detail,fontSize=10.sp,color=c.onSurfaceVariant,maxLines=1,overflow=TextOverflow.Ellipsis)}
+
     }
 }
 @Composable
-private fun GlassLetters(text:String,delay:Int,reduced:Boolean,color:Color) {
+private fun GlassLetters(rawText:String,delay:Int,reduced:Boolean,color:Color) {
+    val text=ui(rawText)
     var shown by remember(text){mutableStateOf(false)}
     LaunchedEffect(text){shown=true}
     val reveal by animateFloatAsState(if(shown)1f else 0f,if(reduced)snap()else tween(460,delay,CubicBezierEasing(.23f,1f,.32f,1f)),label="format reveal")
