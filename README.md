@@ -1,93 +1,86 @@
-<p align="center"><strong>简体中文</strong> · <a href="README.en.md">English</a></p>
+<p align="center">
+  <img src="docs/assets/qingzhuan-icon.svg" width="104" alt="轻转工具箱图标">
+</p>
 
-# 轻转 · Qingzhuan
+# 轻转工具箱
 
-**选择文件，选择格式，滑动玻璃罩开始转换。**
+<p align="center">在 Android 手机上转换、预览与整理常见文件。</p>
 
-原生Android转换工具：Jetpack Compose界面、真实背景折射和原Java转换引擎。转换在本机完成，无需账户或联网服务器。
+<p align="center"><a href="README.md">简体中文</a> · <a href="README.en.md">English</a></p>
 
-[下载 1.5.4 测试预览 APK](https://github.com/zy839971925-zyy/qingzhuan/releases/tag/v1.5.4-preview) · [所有版本](https://github.com/zy839971925-zyy/qingzhuan/releases)
+<p align="center"><a href="https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases/tag/v1.5.4-preview">下载 1.5.4 测试预览版</a> · <a href="https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases">所有版本</a></p>
 
-当前版本 **1.5.4-refined / versionCode12**，包名 `cn.qingzhuan.app.preview`，沿用1.5.2/1.5.3私有开发签名。它与旧版 `cn.qingzhuan.app` 并存；不要删除旧应用及数据。
+轻转工具箱是一款本地优先的 Android 文件转换工具，把图片与 PDF、文档与表格、视频与动态照片、音频和压缩包工具放在同一个应用里。文件在设备上处理，不会上传到在线转换服务；导入、保存和分享都通过 Android 系统界面，由你选择文件与目标位置。
 
-[使用](#从导入到保存) · [图片参数](#原图与高级选项) · [构建](#获取与构建) · [架构](docs/ARCHITECTURE.md) · [验证](docs/RELEASE_1_5_4.md) · [恢复检查点](docs/CURRENT_CHECKPOINT.md)
+当前源码对应 **1.5.4-refined 测试预览版**：包名 `cn.qingzhuan.app.preview`，`versionCode 12`。它与旧版正式应用 `cn.qingzhuan.app` 是不同应用；不要为安装预览版而卸载旧版或清除旧数据。这里的 Gradle `release` 构建仍使用预览包名和开发签名，不等同于正式商店签名版本。
 
-## 1.5.4改进
+## 可以用它做什么
 
-| 能力 | 当前行为 |
-| --- | --- |
-| 默认图片转换 | 保留方向校正后的原尺寸，最高编码质量；旧2048/4096限制不再偷偷缩图 |
-| 高级图片选项 | 默认关闭；开启后选原图/4K/1080P/720P/自定义宽高，JPEG/WebP质量独立设置 |
-| 背景 | 照片的浅色/深色遮罩分别调节0–100%，保留模糊、纯色和原创壁纸 |
-| 层级 | 删除格式卡片重复小字；高级开启后才出现参数；提示移至玻璃罩底部并随拖动模糊消失 |
-| 语言 | 跟随系统/中文/English，覆盖普通界面、无障碍、原生预览和常用任务通知 |
-| 多图卡片 | 直接跟手，后层带弹簧滞后、轻微扇形形变和边界回弹；单张静止 |
+| 任务 | 工具 | 适用边界 |
+| --- | --- | --- |
+| 转换图片与 PDF | JPG、PNG、WebP 互转；图片转 PDF；PDF 按页导出图片、合并或拆分 | 透明图片转 JPG 会铺白；PDF 原有数字签名不会保留 |
+| 处理文档与表格 | TXT、HTML、DOCX、PDF 的文字转换；XLSX、CSV、TSV、JSON 表格转换 | 文档转换重建文字，不保留完整排版或图片，也不做 OCR；表格读取首个工作表，不计算公式或保留样式 |
+| 处理视频与动态照片 | 视频转 MP4、压缩/编码、截帧；视频或动态照片转 GIF；提取可用的 Motion Photo / Live Photo 视频 | H.264、HEVC、AV1 取决于设备编码器；GIF 无声音且最长 60 秒；静态照片不能恢复缺失的动态内容 |
+| 整理压缩包与音频 | ZIP、TAR.GZ 打包和受支持的解压；从媒体提取 M4A 或 WAV；SHA-256 / MD5 校验 | ZIP 可设 AES 密码，TAR.GZ 无密码；不支持 RAR5、分卷 RAR 或 MP3 编码 |
+| 批量查看与管理 | 多文件导入、缩略图和原生预览、批量保存/分享/删除 | 实际格式取决于文件内容与设备能力 |
+
+同格式批次会隐藏无意义的源格式目标；混合文件只显示共同支持的操作。图片、PDF、影音和有限范围内的文档可在应用中预览。Office 预览展示可读取内容，不保证完整还原版式、图形或公式。
 
 ## 从导入到保存
 
-1. 首页点击虚线区域，从照片或文件导入；只复制用户选择的文件，取消不会清空已有输入。
-2. 查看缩略图，多文件可左右滑动或点击原生预览。目标按整批共同能力匹配，同格式图片不重复提供源格式快捷项。
-3. 选目标格式。少量格式用玻璃滑块，展开后是独立玻璃按钮。左下角设置入口管理当前工具参数。
-4. 上拖玻璃罩至中央松手，启动真实转换；提前松手回弹，途中可反向。球内有最短可见反馈，绿勾必须等待真实成功。
-5. 点击结果直接预览，无需先保存。图片/视频默认保存到相册，其他文件使用系统文件选择器；列表支持全选、批量保存、删除与分享。
+1. 在首页从照片或文件中选择要处理的内容。取消选择不会清空已有输入。
+2. 查看缩略图；多文件可左右滑动，也可打开原生预览。
+3. 选择目标格式。当前工具的参数从设置入口调整。
+4. 按住并上滑玻璃罩，移动到中央后松手开始转换；转换成功后才会出现完成标记。
+5. 预览结果后再保存：图片和视频默认写入系统媒体库，其他文件可用系统文件选择器选择位置；结果也可批量分享或删除。
 
-普通切后台由前台服务继续处理，通知与界面读取同一会话。**强停、进程死亡或系统时限到达不保证继续编码**；已提交结果保留，未完成任务明确标记中断。
+普通切到后台时，前台服务会继续处理。强制停止、进程被系统终止或系统运行时限到达时，不保证编码继续；已完成结果会保留，未完成任务会标记为中断。
 
-## 原图与高级选项
+## 图片输出
 
-高级关闭时，输出尺寸等于方向校正后的源尺寸，图片编码质量100。PNG无损，不提供无效质量滑块；PDF转图片使用独立渲染尺寸/质量，不受图片参数串扰。
+默认保留方向校正后的原始尺寸，并使用最高编码质量。需要控制文件大小时，可打开高级选项，选择原图、4K、1080P、720P 或自定义宽高，并单独调整 JPEG / WebP 质量。预设保持比例且不会放大；关闭保持比例后，自定义宽高可以精确匹配，也可能拉伸图像。
 
-| 选项 | 目标边界 |
-| --- | --- |
-| 原图 | 保留源尺寸 |
-| 4K | 横3840×2160，竖2160×3840 |
-| 1080P | 横1920×1080，竖1080×1920 |
-| 720P | 横1280×720，竖720×1280 |
-| 自定义，保持比例 | 适配宽高范围，不放大 |
-| 自定义，关闭保持比例 | 精确宽高，可拉伸/放大 |
+尺寸限制为宽高各 1–32768、最多 64 Mi 像素，并受设备内存影响。资源不足时会明确失败，不会悄悄缩小尺寸。
 
-预设保持比例且不放大，非16:9图片不一定填满边界框。宽高1–32768、最多64Mi目标像素，并受可用内存限制。原图需求过高会明确报错，允许改用较小尺寸，**不会静默降级**。
-
-最高质量不代表原文件字节/元数据不变：JPEG仍有损，处理使用方向校正的8位sRGB位图，不保证EXIF/ICC/HDR/广色域完整往返。透明区域转JPEG铺白；图片工具对GIF只处理首帧。Android10+最高质量WebP可走无损路径，Android8/9旧编码器不承诺无损。
-
-## 保留能力
-
-- JPEG/PNG/WebP、图片成PDF、PDF渲染/合并/拆页。
-- 视频/录屏片段转GIF：尺寸、帧率、质量、循环；最长60秒，另有处理量和128MiB输出限制。
-- 视频裁剪、压缩、H.264/HEVC/AV1转MP4、静音和截图；编码器依设备，失败不暗换编码。
-- 兼容Motion Photo内嵌视频或同名照片/MOV配对；静态照片不能恢复缺失的Live Photo视频。
-- 文档文字及首个工作表转换，不提供OCR、版式保真或公式计算。
-- ZIP/TAR.GZ、受支持解压、SHA-256/MD5、AAC音轨提取M4A和设备解码WAV；不支持MP3编码、RAR5/分卷RAR。
-- 图片/GIF/PDF/影音/有界文档原生预览；Office显示内容，不完整还原版式、图形或公式。
+“最高质量”不代表输出字节与原文件完全相同：JPEG 仍有损；图片处理使用方向校正后的 8 位 sRGB 位图，不保证完整保留 EXIF、ICC、HDR 或广色域信息。透明图片转 JPEG 会铺白；GIF 图片工具只处理首帧。Android 10 及以上的最高质量 WebP 可使用无损路径，Android 8/9 的旧编码器不承诺无损。
 
 ## 外观与语言
 
-设置可选系统/浅色/深色，以及跟随系统/中文/English。手机语言为中文时用中文，其余默认英文。切换呈现语言不翻译文件名、用户内容、会话原始数据或第三方许可原文，也不重启转换任务。
+可以选择系统、浅色或深色主题；界面语言可跟随系统或手动切换中文/English。背景支持动态光晕、原创壁纸、纯色、HEX 和自选照片，也可分别调整照片的浅色与深色遮罩。Android 13 及以上提供完整 RuntimeShader 折射效果；较旧系统会降级显示，但转换功能仍可用。系统减少动画或省电设置可能减弱动效。
 
-背景包括动态光晕、默认、三款原创壁纸、纯色/HEX、自定义照片及模糊。照片深浅遮罩独立记住；过低遮罩的可读性取决于照片。系统减少动画/省电模式会减弱动效。完整RuntimeShader折射需要Android13+，旧系统保留转换和视觉降级。
+## 版本与设备要求
 
-## 获取与构建
+- [下载 1.5.4 测试预览 APK](https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases/tag/v1.5.4-preview)；[查看所有版本](https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases)。预览版与正式发布版会分别标明。
+- 最低 Android 8.0 / API 26。完整玻璃折射效果需要 Android 13 / API 33 或更高版本。
+- 视频编码依赖手机实际提供的硬件/厂商编码器；列出某种编码格式不代表所有设备、分辨率和参数组合都能成功。
+- 1.5.4 预览版已做构建与包体检查；真机启动、视觉、触控、TalkBack、后台行为及性能仍需设备验收。编译或包体检查通过不等于真机验收通过。
 
-交付为 `Qingzhuan-1.5.4-refined.apk`、安装ZIP、源码ZIP。本仓库发布源码不包含APK、私钥或用户参考图/视频。Release APK 与源码分别交付，构建证据和未解决的设备/许可边界见下文。
+## 从源码构建
 
-需要JDK17+（建议Android Studio的JDK21）、SDK36、Build Tools36、Python3及Gradle8.13。无需Node/npm/Expo/NDK/CMake/模拟器。首次依赖解析联网，之后可复用缓存。
+需要 JDK 17 或更高版本（建议 JDK 21）、Android SDK Platform 36、Build Tools 36.0.0 和 Python 3。首次构建需联网获取 Google / Maven 依赖。
 
 ```sh
 export JAVA_HOME=/path/to/jdk21
 export ANDROID_HOME=/path/to/android-sdk
 python3 setup_tools.py
 python3 build.py --variant release
-# Qingzhuan-1.5.4-refined.apk
 ```
 
-也可用Android Studio打开 `android/`。详见[构建指南](docs/BUILDING.md)。恢复同一签名才能覆盖预览版；新生成开发证书不能替换不同签名。
+也可在 Android Studio 中打开 `android/`。当前源码的 `release` 变体仍使用 `cn.qingzhuan.app.preview` 和预览开发签名；它不会自动生成可更新旧正式应用的签名包。正式发布需要与目标应用包名匹配的发布配置与签名密钥。不要把密钥或签名文件提交到仓库。
 
-## 验证、隐私、许可
+更多信息： [架构](docs/ARCHITECTURE.md) · [构建与签名](docs/BUILDING.md) · [1.5.4 验证记录](docs/RELEASE_1_5_4.md) · [设备验收计划](docs/DEVICE_TEST_PLAN.md) · [当前检查点](docs/CURRENT_CHECKPOINT.md)
 
-必要检查包括12项尺寸策略断言、9项Java文案匹配、静态文案/调用边界、2项Android28 JVM集成检查及Release/包身份检查。真实结果见[发布记录](docs/RELEASE_1_5_4.md)与 `handoff/`。 本次仓库更新直接使用你提供的发行 APK；按你的指示，没有重新运行 Gradle/Android SDK 测试或构建。源码包内的既有构建记录与本轮独立检查分开说明。**未使用模拟器，也未做真机启动、光学、触摸或帧率验收**；不宣称60/90/120FPS或与参考逐帧一致。
+## 仓库结构
 
-无INTERNET和全盘读取权限。私有目录保存输入、结果、背景和诊断；媒体用MediaStore，文档用SAF，分享仅授权所选结果URI。输入最多20份、单份512MiB、合计1GiB；私有结果也有限额。私有数据不是云备份，卸载前请导出。
+- `android/`：当前 Android 应用与 Gradle 构建入口。
+- `app/`：转换引擎、任务会话与平台桥接代码。
+- `docs/`：架构、构建、版本记录、验证计划与许可审查。
+- `libs/`、`licenses/`、`THIRD_PARTY_NOTICES.txt`：第三方依赖与声明。
+- `tests/`：测试源码、夹具与检查脚本。
+- `src/`、`App.tsx` 和 npm 配置包含历史实现或测试材料；当前 APK 由 `android/` 构建。
 
-各第三方遵循各自许可，APK不能整体宣称MIT。Kyant为Apache-2.0；历史参考Shader有GPL-3.0来源，原文/修改记录保留。**既有GPL/Junrar分发兼容问题未解决**，见[许可审查](docs/LICENSE_REVIEW.md)和 `licenses/`。原创壁纸/生成器为CC0。
+## 隐私与许可
 
-开发从[架构](docs/ARCHITECTURE.md)、[构建](docs/BUILDING.md)、[变更记录](CHANGELOG.md)、[当前检查点](docs/CURRENT_CHECKPOINT.md)和[工程日志](docs/DEVELOPMENT_1_5_4.md)进入。历史RN/WebView文件只供追溯，不参与APK。
+应用不申请 INTERNET 或全盘读取权限。它将输入、结果、背景和诊断保存在应用私有目录；媒体通过 MediaStore 处理，文档使用系统文件选择器，分享只授予所选结果的 URI。支持最多 20 个输入文件、单文件 512 MiB、总计 1 GiB；私有数据不是云备份，卸载前请先导出。
+
+项目声明采用 GPL-3.0-only。现有许可审查将 GPL 与 Junrar / UnRAR 条款的组合分发兼容性记为未解决；不能据此宣称整个 APK 的公开分发已确认合规。Kyant 使用 Apache-2.0；原创壁纸与生成器为 CC0。详见[许可审查](docs/LICENSE_REVIEW.md)、[`licenses/`](licenses/) 与 [`THIRD_PARTY_NOTICES.txt`](THIRD_PARTY_NOTICES.txt)。本文不构成法律意见。
