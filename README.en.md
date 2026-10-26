@@ -1,86 +1,64 @@
 <p align="center">
-  <img src="docs/assets/qingzhuan-icon.svg" width="104" alt="Qingzhuan Toolbox app icon">
+  <img src="docs/assets/qingzhuan-icon.svg" width="96" alt="Qingzhuan Toolbox icon">
 </p>
 
-# Qingzhuan Toolbox · 轻转工具箱
+<h1 align="center">Qingzhuan Toolbox</h1>
 
 <p align="center">Convert, preview and organise everyday files on Android.</p>
+<p align="center">On-device processing · Batch workflows · Personalised appearance</p>
 
 <p align="center"><a href="README.md">简体中文</a> · <a href="README.en.md">English</a></p>
+<p align="center"><a href="https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases/download/v1.5.4/Qingzhuan-Toolbox-1.5.4.apk">Download 1.5.4 APK</a> · <a href="https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases">All releases</a></p>
 
-<p align="center"><a href="https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases/tag/v1.5.4-preview">Download the 1.5.4 preview APK</a> · <a href="https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases">All releases</a></p>
+Qingzhuan Toolbox brings together tools for images and PDFs, documents and spreadsheets, video and motion photos, audio, and archives. Files are processed on your device, not sent to an online conversion service. Choose files through Android’s system interface, preview the results, then decide where to save or share them.
 
-Qingzhuan Toolbox is a local-first Android file converter that brings together tools for images and PDFs, documents and spreadsheets, video and motion photos, audio, and archives. Files are processed on your device rather than uploaded to an online conversion service. Android system pickers let you choose what to import, where to save it, and what to share.
+## One toolbox for everyday files
 
-The source configures a future production package with the independent application ID `cn.qingzhuan.toolbox`, so it can coexist with the older `cn.qingzhuan.app` app and the 1.5.4 preview. The current version is **1.5.4**. A production `release` build requires its own configured signing key.
+| Type | What you can do |
+| --- | --- |
+| Images and PDFs | Convert JPG, PNG and WebP; turn images into PDFs; export PDF pages as images; merge or split PDFs |
+| Documents and spreadsheets | Convert text in TXT, HTML, DOCX and PDF; convert tables in XLSX, CSV, TSV and JSON |
+| Video and motion photos | Convert or compress video, extract frames, create GIFs, and extract available video from Motion Photo / Live Photo files |
+| Audio and archives | Extract M4A / WAV from media; create or extract ZIP and TAR.GZ archives; calculate SHA-256 / MD5 checksums |
+| Batch work | Import several files, browse thumbnails and previews, then save, share or delete results in batches |
 
-## What you can do
+## A simple conversion flow
 
-| Task | Tools | Important limits |
-| --- | --- | --- |
-| Convert images and PDFs | JPG, PNG and WebP conversion; images to PDF; export PDF pages as images; merge or split PDFs | Transparent images are flattened onto white when converted to JPG; existing PDF digital signatures are not preserved |
-| Work with documents and tables | Text conversion among TXT, HTML, DOCX and PDF; table conversion among XLSX, CSV, TSV and JSON | Document conversion rebuilds text rather than preserving full layout or images, and does not provide OCR. Tables read the first worksheet; formulas are not calculated and styles are not preserved |
-| Process video and motion photos | Video to MP4, compression/encoding, frame capture; video or motion photo to GIF; extract available Motion Photo / Live Photo video | H.264, HEVC and AV1 depend on device encoders. GIF has no audio and is limited to 60 seconds; a still image cannot restore missing motion data |
-| Handle archives and audio | Create ZIP and TAR.GZ archives, extract supported archives, extract M4A or WAV audio, calculate SHA-256 / MD5 checksums | ZIP supports AES passwords; TAR.GZ does not. RAR5, split RAR archives and MP3 encoding are not supported |
-| Review and manage batches | Import multiple files, view thumbnails and native previews, save/share/delete in batches | Actual support depends on file contents and device capabilities |
+1. Import files from Photos or Android’s file picker.
+2. Browse thumbnails; swipe through multiple files or open a preview.
+3. Choose an output format and adjust the settings for that tool if needed.
+4. Press and swipe the glass panel upwards; release when it reaches the centre to start conversion.
+5. Preview the result, then save it to your media library or a folder you choose, or share it.
 
-For same-format batches, redundant source-format destinations are hidden; mixed batches show only operations supported by every selected item. The app can preview images, PDFs, media and bounded document content. Office previews show readable content but do not promise full layout, graphics or formula fidelity.
+Images default to their orientation-corrected original dimensions and the highest encoder quality. Advanced options include Original, 4K, 1080p and 720p presets or custom dimensions, plus separate JPEG / WebP quality controls. Image and PDF output settings stay independent.
 
-## A typical workflow
+## Make the interface yours
 
-1. Select files from Photos or the system file picker. Cancelling a selection does not clear existing inputs.
-2. Review thumbnails; swipe through a batch or open the native preview.
-3. Choose an output format and adjust options for the current tool.
-4. Press and slide the glass cover towards the centre, then release to start conversion. The completion mark appears only after a real successful result.
-5. Preview the output before saving. Images and videos go to the system media collection by default; other files can be saved to a location chosen in the system picker. Results can also be shared or deleted in batches.
+Follow the system theme or choose light or dark mode; the interface supports system language, Simplified Chinese and English. Pick an animated glow, built-in wallpaper, solid colour, HEX colour or your own photo as a background. Photo masks have separate light- and dark-mode settings. Multi-file browsing uses responsive paging and a subtle layered effect; the gesture-led conversion panel gives feedback as you work.
 
-A foreground service continues work during ordinary backgrounding. Force-stop, process death or system execution limits may interrupt encoding; completed outputs are retained and unfinished work is marked interrupted.
+## Download and compatibility
 
-## Image output
+- [Download Qingzhuan Toolbox 1.5.4](https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases/download/v1.5.4/Qingzhuan-Toolbox-1.5.4.apk) · [All releases](https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases)
+- Minimum Android 8.0 / API 26. Full glass refraction effects require Android 13 / API 33 or later.
+- Video encoding uses the hardware or vendor encoders available on your phone; supported formats and settings vary by device.
 
-By default, the app keeps the source dimensions after orientation correction and uses the highest encoding quality. Turn on Advanced options to choose Original, 4K, 1080p, 720p or custom dimensions, and adjust JPEG / WebP quality independently. Presets keep aspect ratio and do not upscale. With aspect-ratio preservation disabled, custom dimensions can match exactly but may stretch the image.
+<details>
+<summary>Supported formats and important limits</summary>
 
-Dimensions are limited to 1–32768 per side and 64 megapixels, subject to available memory. If the requested output cannot be handled, the app reports a clear failure rather than silently downscaling it.
+- Transparent images converted to JPEG receive a white background. Merging, splitting or converting a PDF does not preserve its digital signature.
+- Document conversion rebuilds readable text; it is not full-fidelity layout conversion and does not include OCR. Spreadsheet conversion reads the first sheet and does not calculate formulas or preserve styles.
+- GIF output has no audio and is limited to 60 seconds. A static photo cannot recover motion data that is no longer present.
+- ZIP supports AES passwords; TAR.GZ does not. RAR5, split RAR archives and MP3 encoding are not supported.
+- Image dimensions can be set from 1 to 32,768 pixels per side, up to 64 megapixels, subject to device memory. JPEG is lossy; image output does not guarantee preservation of all EXIF, ICC, HDR or wide-colour-gamut data.
+- A foreground service can continue work when the app is moved to the background, but force-stopping the app, process termination or system execution limits may interrupt conversion.
 
-“Highest quality” does not mean byte-for-byte preservation: JPEG remains lossy, and image processing uses an orientation-corrected 8-bit sRGB bitmap without guaranteeing full EXIF, ICC, HDR or wide-colour-gamut retention. Transparent images are flattened onto white for JPEG; the image tool processes only the first GIF frame. Highest-quality WebP can use a lossless path on Android 10 and later; the older Android 8/9 encoder is not guaranteed lossless.
+</details>
 
-## Appearance and language
+## Privacy and source
 
-Choose system, light or dark theme; select the system language or switch between Chinese and English. Backgrounds include an animated glow, original wallpapers, solid colours, HEX values and a user-selected photo, with separate light and dark overlays. Full RuntimeShader refraction requires Android 13 / API 33 or later; older systems use a visual fallback while retaining conversion features. System animation-reduction or battery-saving settings may reduce motion.
+The app does not request the INTERNET or all-files-access permission. It uses Android’s system file picker for files you select and keeps inputs, results and app settings on-device. Media is saved through the system media library; sharing exposes only the result you choose. Limits: up to 20 input files, 512 MiB per file and 1 GiB total. Export anything you need to keep before uninstalling.
 
-## Version and device requirements
+- [Architecture](docs/ARCHITECTURE.md) · [Building and signing](docs/BUILDING.md) · [Device test plan](docs/DEVICE_TEST_PLAN.md)
+- The project declares GPL-3.0-only. Compatibility between GPL and the Junrar / UnRAR terms for combined distribution remains unresolved. See [`licenses/`](licenses/) and [`THIRD_PARTY_NOTICES.txt`](THIRD_PARTY_NOTICES.txt) for dependency notices.
 
-- [Download Qingzhuan Toolbox 1.5.4 APK](https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases/tag/v1.5.4-preview) or [browse all releases](https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases). The historical preview is listed separately.
-- Minimum configured version: Android 8.0 / API 26. Full glass refraction requires Android 13 / API 33 or later.
-- Video encoding depends on hardware and vendor encoders available on the device; listing a codec does not guarantee every device, resolution or parameter combination will work.
-- Physical-device launch, visuals, touch behaviour, TalkBack, background behaviour and performance still need device acceptance. A successful build or package check is not device acceptance.
-
-## Build from source
-
-Requires JDK 17 or later (JDK 21 recommended), Android SDK Platform 36, Build Tools 36.0.0 and Python 3. The first build needs network access to Google / Maven dependencies.
-
-```sh
-export JAVA_HOME=/path/to/jdk21
-export ANDROID_HOME=/path/to/android-sdk
-python3 setup_tools.py
-python3 build.py --variant release
-```
-
-You can also open `android/` in Android Studio. The production package ID is `cn.qingzhuan.toolbox`, separate from the older production app and the preview. A release build requires a dedicated signing keystore; the script has no development-key fallback. Never commit signing keys or passwords to the repository.
-
-More detail: [Architecture](docs/ARCHITECTURE.md) · [Build and signing](docs/BUILDING.md) · [1.5.4 validation record](docs/RELEASE_1_5_4.md) · [Device acceptance plan](docs/DEVICE_TEST_PLAN.md) · [Current checkpoint](docs/CURRENT_CHECKPOINT.md)
-
-## Repository layout
-
-- `android/`: current Android app and Gradle build entry point.
-- `app/`: conversion engine, task sessions and platform bridge.
-- `docs/`: architecture, build guide, release notes, validation plans and license review.
-- `libs/`, `licenses/`, `THIRD_PARTY_NOTICES.txt`: bundled dependencies and notices.
-- `tests/`: test source, fixtures and check scripts.
-- `src/`, `App.tsx` and npm configuration contain historical implementations or test material; the current APK is built from `android/`.
-
-## Privacy and licensing
-
-The app requests neither INTERNET nor broad storage access. It keeps inputs, outputs, backgrounds and diagnostics in app-private storage; media uses MediaStore, documents use the system picker, and sharing grants access only to the selected output URI. Limits are up to 20 input files, 512 MiB per file and 1 GiB total. Private app data is not cloud-backed up; export it before uninstalling.
-
-The project declares GPL-3.0-only. The existing license review records unresolved compatibility between GPL and the Junrar / UnRAR terms when distributed together, so distribution of the complete APK should not be described as cleared. Kyant is Apache-2.0; original wallpapers and generators are CC0. See the [license review](docs/LICENSE_REVIEW.md), [`licenses/`](licenses/) and [`THIRD_PARTY_NOTICES.txt`](THIRD_PARTY_NOTICES.txt). This is not legal advice.
+The formal app uses the separate application ID `cn.qingzhuan.toolbox`, so it can be installed alongside the older app and historical preview package. Formal builds require a dedicated signing key; never commit the key or its password to the repository.

@@ -41,3 +41,11 @@
 本轮不依赖 Android SDK 的检查：`check_image_policy.py` 的12项尺寸/默认/Exif/范围断言通过；`check_localization.py` 的9项Java目录断言和静态UI覆盖检查通过；静态错误/文件名/无障碍边界检查通过；Python脚本编译、Markdown相对链接扫描和 `git diff --check` 通过。**本轮没有重跑Android28 JVM集成测试或 `assembleRelease`**；源码包中的旧日志/XML仅是此前结果，不代表本次提交重新验证。
 
 真实设备启动、触摸/视觉/无障碍/性能验收仍未进行。GPL/Junrar分发兼容问题仍未解决。
+
+## 2026-10-26 standalone formal build
+
+Following the later request for a production package that can coexist with the older app, the project was configured with application ID `cn.qingzhuan.toolbox`, display name `轻转工具箱`, versionName `1.5.4` and versionCode `1`. Android SDK Platform 36 and Build Tools 36.0.0 were installed after the owner authorised acceptance of the SDK licence. `:app:testReleaseUnitTest` passed, and `:app:assembleRelease` completed successfully.
+
+The release APK was signed with the dedicated production key kept outside the repository. Package name, label, version, v2 signature, alignment and ZIP integrity were verified. Artifact: `Qingzhuan-Toolbox-1.5.4.apk`, 15,204,105 bytes; SHA-256 `40d220c2616c7488e35fb346cdccfedbbe068def15b3d44379f5a70fa0c0cda2`. Signing certificate SHA-256: `a077d92842d12b607fede22c6168bc0fff92dcbf9c515529f60d5361f4bd2198`.
+
+No physical-device or emulator acceptance has been performed. The APK build and unit tests do not establish device-specific launch, accessibility, performance or visual behaviour. Combined-distribution compatibility of GPL and Junrar / UnRAR remains unresolved.
