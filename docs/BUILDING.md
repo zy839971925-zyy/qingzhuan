@@ -2,43 +2,37 @@
 
 ## 环境
 
-- JDK17+；建议JDK21/Android Studio JBR。本次APK及Android28 JVM检查使用JDK17。
-- Android SDK Platform36、Build Tools36.0.0；Gradle8.13由wrapper使用。
-- Python3用于根构建脚本。APK本身不依赖Python、Node、Expo、NDK、CMake或模拟器。
-- 首次构建需访问Google/Maven依赖仓库；源包含既有 `libs/` 和许可，不含SDK/Gradle缓存。
-
-Android Studio打开 `android/`，选择JDK、SDK后同步构建。命令行：
+- JDK 17 或更高版本（建议 JDK 21 / Android Studio JBR）。
+- Android SDK Platform 36、Build Tools 36.0.0；Gradle 8.13 由 wrapper 管理。
+- Python 3 用于仓库根目录构建脚本。APK 不需要 Node、Expo、NDK、CMake 或模拟器。
+- 首次构建需要网络访问 Google / Maven 依赖仓库；`setup_tools.py` 只检查环境，不会下载 SDK。
 
 ```sh
 export JAVA_HOME=/path/to/jdk21
 export ANDROID_HOME=/path/to/android-sdk
 python3 setup_tools.py
+```
+
+## 正式版
+
+当前 1.5.4 正式包使用独立应用 ID `cn.qingzhuan.toolbox`、versionCode `1` 和 versionName `1.5.4`，可与旧包 `cn.qingzhuan.app` 和预览包 `cn.qingzhuan.app.preview` 并存。Java/Kotlin namespace 仍是 `cn.qingzhuan.app`。
+
+正式 APK 必须使用专用发布 keystore。构建前设置 `QINGZHUAN_RELEASE_KEYSTORE`、`QINGZHUAN_RELEASE_STORE_PASSWORD`、`QINGZHUAN_RELEASE_KEY_ALIAS`、`QINGZHUAN_RELEASE_KEY_PASSWORD`，从本地安全的密钥管理方式加载；不要把口令写进命令历史、仓库、日志或聊天，也不要上传 keystore 到公开仓库。缺少签名配置时，根脚本会拒绝 release 构建，不会退回 Android debug key。
+
+```sh
 python3 build.py --variant release
+# Qingzhuan-Toolbox-1.5.4.apk
 ```
 
-根目录 `setup_tools.py` 只做 JDK/SDK 预检，不会替你下载或安装 Android SDK。请先安装 Platform 36 与 Build Tools 36.0.0，并设置 `ANDROID_HOME` 或 `ANDROID_SDK_ROOT`。源码 smoke 检查会依次使用 `JAVA_HOME`、包内开发 JDK、系统 `PATH` 上的 JDK。
+同一 application ID 的后续版本必须继续使用这把 keystore；备份丢失或泄露都会影响后续更新，应在独立安全位置备份。APK 发布前核对包名、版本、签名、ZIP 对齐、资源/DEX 和文件哈希。
 
-也可写本地、不可提交的 `android/local.properties`：
+## Debug 与历史预览
 
-```properties
-sdk.dir=/absolute/path/to/android-sdk
-```
+`python3 build.py --variant debug` 仅用于本机调试，不能当作正式分发包。1.5.4-preview 的 APK 使用不同的包名和开发证书；旧预览安装更新需要原预览 keystore。当前正式包不是对预览包签名升级，而是独立的新应用。
 
-然后 `cd android && ./gradlew :app:assembleRelease --no-watch-fs -Pkotlin.incremental=false`。产物为 `app/build/outputs/apk/release/app-release.apk`；根build.py另复制为 `Qingzhuan-1.5.4-refined.apk`。
+历史 1.5.3/1.5.4-preview 构建记录保存在 `docs/RELEASE_1_5_3.md`、`docs/RELEASE_1_5_4.md` 与 `handoff/`，不代表当前正式包已重新构建或设备验收。
 
-## 签名不能丢
-
-当前预览使用仓库外 `../private-signing/qingzhuan-preview.keystore`，或 `QINGZHUAN_DEBUG_KEYSTORE` 指定文件。Gradle配置的本地开发别名是androiddebugkey，开发口令android；这是预览构建方式，不代表生产发布密钥管理方案。
-
-本次证书SHA256：
-
-```text
-f253392041358c9edff32e76590aaa8de02725b1806183ae6ab6ba3eb8173286
-```
-
-恢复同一私钥才能更新已安装同包名的预览版。根build.py在缺失时生成新的独立开发证书，不能借此覆盖不同签名。签名不在源码或Git bundle中；旧包名 `cn.qingzhuan.app` 的密钥不在本工程中，不要删除旧应用来规避签名问题。
-
-## 最必要的检查
+## 测试
 
 ```sh
 python3 scripts/check_image_policy.py
@@ -48,16 +42,8 @@ cd android
 ./gradlew :app:assembleRelease
 ```
 
-前两项需要JAVA_HOME指向完整JDK。2项Android28 JVM检查使用Robolectric，没有启动安卓模拟器；首次可能下载对应Android测试框架。更高SDK的JVM测试可能需要JDK21，本次未运行它们，也未重跑历史整套UI回归。
-
-若DEX报告生成资源R类重复，先保留日志，再 `:app:clean :app:assembleRelease --no-watch-fs -Pkotlin.incremental=false`；只清理构建产物，不能删除源码、结果或签名。资源/缓存失败不能当成设备崩溃证据。
-
-交付时核对apksigner证书、versionCode/package/label、ZIP对齐、资源/DEX及文件哈希。源码包 `handoff/` 记录实际构建源提交、签名输出、构建日志和JVM测试XML。源码归档提交可以另含文档修改；应用代码差异必须检查为空。
+前两项为源码策略/本地化检查；Robolectric 测试是在 JVM 的 Android 28 shadow 环境执行，不是模拟器或真机验收。Release assembly 需要所有 `QINGZHUAN_RELEASE_*` 签名变量。若出现 dex/resource 重复，保留日志后可清理构建目录并重试，不要删除源码、结果或 keystore。
 
 ## English quick guide
 
-Use JDK17+ (21 recommended), SDK36 and Build Tools36. SetJAVA_HOME/ANDROID_HOME, run setup_tools.py then build.py --variant release, or openandroid/ in Android Studio. No emulator/Node/Expo/NDK is required. First dependency resolution needs network access.
-
-Restore the separately backed-up preview keystore before updating an installed preview. A new key cannot replace another signature. The source bundle deliberately excludes private keys and APKs.
-
-The two targeted Robolectric tests are JVM checks on Android28 shadows, not a physical device. Build/signature checks do not prove visual quality, launch on an OEM device or FPS. Exact evidence and remaining checks are in RELEASE_1_5_4.md.
+Use JDK 17+ (21 recommended), Android SDK Platform 36 and Build Tools 36.0.0. `setup_tools.py` only checks the toolchain. The production app ID is `cn.qingzhuan.toolbox`, distinct from both the old app and the preview. Set all four `QINGZHUAN_RELEASE_*` variables from a secure local secret manager before `python3 build.py --variant release`. The script refuses unsigned/debug-signed release builds. Keep the keystore backed up securely; never commit keys or passwords. Run the two targeted checks and Gradle unit test before release; Robolectric is not device acceptance.

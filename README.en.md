@@ -8,11 +8,11 @@
 
 <p align="center"><a href="README.md">简体中文</a> · <a href="README.en.md">English</a></p>
 
-<p align="center"><a href="https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases/tag/v1.5.4-preview">Download the 1.5.4 preview</a> · <a href="https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases">All releases</a></p>
+<p align="center"><a href="https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases/tag/v1.5.4-preview">Download the 1.5.4 preview APK</a> · <a href="https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases">All releases</a></p>
 
 Qingzhuan Toolbox is a local-first Android file converter that brings together tools for images and PDFs, documents and spreadsheets, video and motion photos, audio, and archives. Files are processed on your device rather than uploaded to an online conversion service. Android system pickers let you choose what to import, where to save it, and what to share.
 
-The current source tree corresponds to **preview version 1.5.4-refined**, package ID `cn.qingzhuan.app.preview`, `versionCode` 12. It is a separate app from the older production package `cn.qingzhuan.app`; do not uninstall the older app or clear its data to install this preview. The Gradle `release` variant in this source still uses the preview package ID and development signing key; it is not a production-store-signed build.
+The source configures a future production package with the independent application ID `cn.qingzhuan.toolbox`, so it can coexist with the older `cn.qingzhuan.app` app and the 1.5.4 preview. The current version is **1.5.4**. A production `release` build requires its own configured signing key.
 
 ## What you can do
 
@@ -50,10 +50,10 @@ Choose system, light or dark theme; select the system language or switch between
 
 ## Version and device requirements
 
-- [Download the 1.5.4 preview APK](https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases/tag/v1.5.4-preview) or [browse all releases](https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases). Preview and production builds are identified separately.
+- [Download Qingzhuan Toolbox 1.5.4 APK](https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases/tag/v1.5.4-preview) or [browse all releases](https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases). The historical preview is listed separately.
 - Minimum configured version: Android 8.0 / API 26. Full glass refraction requires Android 13 / API 33 or later.
 - Video encoding depends on hardware and vendor encoders available on the device; listing a codec does not guarantee every device, resolution or parameter combination will work.
-- Version 1.5.4 has build and package checks recorded. Physical-device launch, visuals, touch behaviour, TalkBack, background behaviour and performance still need device acceptance. A successful build or package check is not device acceptance.
+- Physical-device launch, visuals, touch behaviour, TalkBack, background behaviour and performance still need device acceptance. A successful build or package check is not device acceptance.
 
 ## Build from source
 
@@ -66,7 +66,7 @@ python3 setup_tools.py
 python3 build.py --variant release
 ```
 
-You can also open `android/` in Android Studio. The current source's Gradle `release` variant still uses `cn.qingzhuan.app.preview` and a preview development key; it does not create a signing identity that can update the older production app. A production release needs a signing configuration and key matching its intended application ID. Never commit signing keys to the repository.
+You can also open `android/` in Android Studio. The production package ID is `cn.qingzhuan.toolbox`, separate from the older production app and the preview. A release build requires a dedicated signing keystore; the script has no development-key fallback. Never commit signing keys or passwords to the repository.
 
 More detail: [Architecture](docs/ARCHITECTURE.md) · [Build and signing](docs/BUILDING.md) · [1.5.4 validation record](docs/RELEASE_1_5_4.md) · [Device acceptance plan](docs/DEVICE_TEST_PLAN.md) · [Current checkpoint](docs/CURRENT_CHECKPOINT.md)
 

@@ -8,11 +8,11 @@
 
 <p align="center"><a href="README.md">简体中文</a> · <a href="README.en.md">English</a></p>
 
-<p align="center"><a href="https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases/tag/v1.5.4-preview">下载 1.5.4 测试预览版</a> · <a href="https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases">所有版本</a></p>
+<p align="center"><a href="https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases/tag/v1.5.4-preview">下载 1.5.4 预览版 APK</a> · <a href="https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases">所有版本</a></p>
 
 轻转工具箱是一款本地优先的 Android 文件转换工具，把图片与 PDF、文档与表格、视频与动态照片、音频和压缩包工具放在同一个应用里。文件在设备上处理，不会上传到在线转换服务；导入、保存和分享都通过 Android 系统界面，由你选择文件与目标位置。
 
-当前源码对应 **1.5.4-refined 测试预览版**：包名 `cn.qingzhuan.app.preview`，`versionCode 12`。它与旧版正式应用 `cn.qingzhuan.app` 是不同应用；不要为安装预览版而卸载旧版或清除旧数据。这里的 Gradle `release` 构建仍使用预览包名和开发签名，不等同于正式商店签名版本。
+当前源码为正式包配置了独立应用 ID `cn.qingzhuan.toolbox`，可与旧版 `cn.qingzhuan.app` 和 1.5.4 预览包并存。当前版本为 **1.5.4**；正式 `release` 构建必须使用单独配置的发布签名密钥。
 
 ## 可以用它做什么
 
@@ -50,10 +50,10 @@
 
 ## 版本与设备要求
 
-- [下载 1.5.4 测试预览 APK](https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases/tag/v1.5.4-preview)；[查看所有版本](https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases)。预览版与正式发布版会分别标明。
+- [下载轻转工具箱 1.5.4](https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases/tag/v1.5.4-preview)；[查看所有版本](https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases)。安装包与历史预览版分开提供。
 - 最低 Android 8.0 / API 26。完整玻璃折射效果需要 Android 13 / API 33 或更高版本。
 - 视频编码依赖手机实际提供的硬件/厂商编码器；列出某种编码格式不代表所有设备、分辨率和参数组合都能成功。
-- 1.5.4 预览版已做构建与包体检查；真机启动、视觉、触控、TalkBack、后台行为及性能仍需设备验收。编译或包体检查通过不等于真机验收通过。
+- 1.5.4 的真机启动、视觉、触控、TalkBack、后台行为及性能仍需设备验收；编译或包体检查通过不等于真机验收通过。
 
 ## 从源码构建
 
@@ -66,7 +66,7 @@ python3 setup_tools.py
 python3 build.py --variant release
 ```
 
-也可在 Android Studio 中打开 `android/`。当前源码的 `release` 变体仍使用 `cn.qingzhuan.app.preview` 和预览开发签名；它不会自动生成可更新旧正式应用的签名包。正式发布需要与目标应用包名匹配的发布配置与签名密钥。不要把密钥或签名文件提交到仓库。
+也可在 Android Studio 中打开 `android/`。正式包使用 `cn.qingzhuan.toolbox`，与旧正式版和预览版分开安装。`release` 构建必须显式提供独立发布 keystore 及其签名环境变量；脚本不会退回开发密钥。不要把密钥、口令或签名文件提交到仓库。
 
 更多信息： [架构](docs/ARCHITECTURE.md) · [构建与签名](docs/BUILDING.md) · [1.5.4 验证记录](docs/RELEASE_1_5_4.md) · [设备验收计划](docs/DEVICE_TEST_PLAN.md) · [当前检查点](docs/CURRENT_CHECKPOINT.md)
 

@@ -2,7 +2,7 @@
 
 # 技术架构 · 从文件到结果
 
-本文描述1.5.4实际源码：Kotlin/Jetpack Compose + Kyant Backdrop1.0.6 + 原Java会话/转换引擎。历史RN/WebView不参与APK。最低API26，compile/targetSDK36；包名 `cn.qingzhuan.app.preview`。验证事实见[发布记录](RELEASE_1_5_4.md)。
+本文描述1.5.4实际源码：Kotlin/Jetpack Compose + Kyant Backdrop1.0.6 + 原Java会话/转换引擎。历史RN/WebView不参与APK。最低API26，compile/targetSDK36；正式包名 `cn.qingzhuan.toolbox`；Java/Kotlin namespace 仍为 `cn.qingzhuan.app`。1.5.4预览包的历史验证见[预览发布记录](RELEASE_1_5_4.md)。
 
 ## 主链路
 

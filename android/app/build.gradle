@@ -1,12 +1,18 @@
 plugins { id 'com.android.application'; id 'org.jetbrains.kotlin.android'; id 'org.jetbrains.kotlin.plugin.compose' }
+def productionSigningReady = ['QINGZHUAN_RELEASE_KEYSTORE','QINGZHUAN_RELEASE_STORE_PASSWORD','QINGZHUAN_RELEASE_KEY_ALIAS','QINGZHUAN_RELEASE_KEY_PASSWORD'].every { System.getenv(it) }
 android {
  namespace 'cn.qingzhuan.app'
  compileSdk 36
  buildToolsVersion '36.0.0'
- defaultConfig { applicationId 'cn.qingzhuan.app.preview'; minSdk 26; targetSdk 36; versionCode 12; versionName '1.5.4-refined' }
+ defaultConfig { applicationId 'cn.qingzhuan.toolbox'; minSdk 26; targetSdk 36; versionCode 1; versionName '1.5.4' }
  sourceSets { main { java.srcDirs += ['../../app/src/main/java']; java.exclude '**/QingzhuanModule.java','**/QingzhuanPackage.java'; res.srcDirs += ['../../app/src/main/res']; assets.srcDirs += ['../../native-assets'] } }
- signingConfigs { debug { def testKey = file(System.getenv('QINGZHUAN_DEBUG_KEYSTORE') ?: '../../../private-signing/qingzhuan-preview.keystore'); if(testKey.exists()) storeFile testKey; storePassword 'android'; keyAlias 'androiddebugkey'; keyPassword 'android' } }
- buildTypes { debug { signingConfig signingConfigs.debug }; release { signingConfig signingConfigs.debug; minifyEnabled false } }
+signingConfigs {
+  debug { def testKey = file(System.getenv('QINGZHUAN_DEBUG_KEYSTORE') ?: '../../../private-signing/qingzhuan-preview.keystore'); if(testKey.exists()) storeFile testKey; storePassword 'android'; keyAlias 'androiddebugkey'; keyPassword 'android' }
+  if (productionSigningReady) {
+   create('production') { storeFile file(System.getenv('QINGZHUAN_RELEASE_KEYSTORE')); storePassword System.getenv('QINGZHUAN_RELEASE_STORE_PASSWORD'); keyAlias System.getenv('QINGZHUAN_RELEASE_KEY_ALIAS'); keyPassword System.getenv('QINGZHUAN_RELEASE_KEY_PASSWORD') }
+  }
+ }
+ buildTypes { debug { signingConfig signingConfigs.debug }; release { if (productionSigningReady) signingConfig signingConfigs.production; minifyEnabled false } }
  testOptions { unitTests.includeAndroidResources = true; unitTests.all { systemProperty "robolectric.dependency.repo.url", "https://repo.maven.apache.org/maven2"; maxHeapSize = "1536m"; if(System.getenv("QZ_TEST_JAVA")) executable = System.getenv("QZ_TEST_JAVA") } }
  buildFeatures { compose true; buildConfig true }
  compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
@@ -30,4 +36,10 @@ dependencies {
  testImplementation 'org.robolectric:robolectric:4.16.1'
  testImplementation 'androidx.compose.ui:ui-test-junit4:1.10.3'
  debugImplementation 'androidx.compose.ui:ui-test-manifest:1.10.3'
+}
+
+gradle.taskGraph.whenReady { graph ->
+ if (graph.allTasks.any { it.name in ['assembleRelease','packageRelease','bundleRelease'] } && !productionSigningReady) {
+  throw new GradleException('A dedicated production signing key is required for release APK/AAB builds; debug signing is not allowed.')
+ }
 }
