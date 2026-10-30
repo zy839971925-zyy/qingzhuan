@@ -295,7 +295,10 @@
     "音频解码器长时间没有响应": "Audio decoder timed out",
     "此解码器未输出 16 位 PCM": "This decoder did not output 16-bit PCM",
     "解码后文件超过安全上限": "Decoded output exceeds the safe size limit",
-    "文档包含不允许的 XML 声明": "Document contains a disallowed XML declaration"
+    "文档包含不允许的 XML 声明": "Document contains a disallowed XML declaration",
+    "返回": "Back",
+    "管理文件": "Manage files",
+    "查看全部结果": "View all results"
   },
   "rules": [
     {

@@ -1,0 +1,35 @@
+{
+  "version": "1.5.5",
+  "versionCode": 2,
+  "applicationId": "cn.qingzhuan.toolbox",
+  "label": "轻转工具箱",
+  "bytes": 15220813,
+  "sha256": "81ff97463de6c1222434a6fe72dee36d29c0408cc7ee413a7796678df7a78dff",
+  "certificateSha256": "a077d92842d12b607fede22c6168bc0fff92dcbf9c515529f60d5361f4bd2198",
+  "signatureScheme": "v2",
+  "signatureVerified": true,
+  "zipalign16KB": true,
+  "internetPermission": false,
+  "productionKeyFoundAndReused": true,
+  "keyIncludedInRepository": false,
+  "previousStable": "1.5.4",
+  "previousStableApplicationId": "cn.qingzhuan.toolbox",
+  "previousStableCertificateSha256": "a077d92842d12b607fede22c6168bc0fff92dcbf9c515529f60d5361f4bd2198",
+  "versionCodeHigherThanPreviousStable": true,
+  "targetedJVMTests": {
+    "Motion155Test": 8,
+    "Refined154Test": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "policyChecks": {
+    "imagePolicy": 12,
+    "javaLocalization": 9,
+    "staticLocalizationCoverage": true
+  },
+  "releaseBuild": "BUILD SUCCESSFUL; 50 tasks, 34 executed, 16 up-to-date; release lint passed",
+  "deviceValidation": "not performed",
+  "emulator": false,
+  "unresolved": "GPL and Junrar/UnRAR combined-license compatibility review; physical-device, visual/accessibility/performance and install/data-migration acceptance were not performed"
+}

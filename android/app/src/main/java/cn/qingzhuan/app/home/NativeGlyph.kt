@@ -4,6 +4,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 
 @Composable
@@ -28,6 +29,7 @@ fun Glyph(
             "clock-3" -> R.drawable.qz_clock_3
             "download" -> R.drawable.qz_download
             "share-2" -> R.drawable.qz_share_2
+            "arrow-left" -> R.drawable.qz_arrow_up
             "arrow-up" -> R.drawable.qz_arrow_up
             "x" -> R.drawable.qz_x
             "chevron-down" -> R.drawable.qz_chevron_down
@@ -39,5 +41,5 @@ fun Glyph(
             "check-square" -> R.drawable.qz_check_square
             else -> R.drawable.qz_file
         }
-    Icon(painterResource(id), description?.let{ui(it)}, modifier, tint = color)
+    Icon(painterResource(id), description?.let{ui(it)}, if(name=="arrow-left")modifier.graphicsLayer{rotationZ=-90f}else modifier, tint = color)
 }

@@ -36,15 +36,18 @@ fun GlassSheetHost(
     reduced: Boolean,
     onClose: () -> Unit,
     onVisible: (Boolean) -> Unit,
+    onBack:()->Unit=onClose,
+    backwards:Boolean=false,
     content: @Composable (String, () -> Unit) -> Unit,
 ) {
+    val latestName by rememberUpdatedState(name)
     val state = remember { MutableTransitionState(false) }
     state.targetState = name != null
     var retained by remember { mutableStateOf(name ?: "menu") }
     if (name != null) retained = name
     val active = state.currentState || state.targetState || !state.isIdle
     SideEffect { onVisible(active) }
-    BackHandler(active) { if (name != null) onClose() }
+    BackHandler(active) { if (name != null) onBack() }
     val pane=ui("轻转操作面板");val closeLabel=ui("关闭操作面板");val dragLabel=ui("向下拖动关闭面板")
     val c = MaterialTheme.colorScheme
     val shape = RoundedCornerShape(topStart=32.dp, topEnd=32.dp)
@@ -104,11 +107,13 @@ fun GlassSheetHost(
                             targetState=retained,
                             transitionSpec={
                                 if(reduced) (fadeIn(snap()) togetherWith fadeOut(snap())).using(SizeTransform(clip=false){_,_->snap()})
-                                else ((fadeIn(tween(220,70))+slideInVertically(tween(280)){it.coerceAtMost(36)}) togetherWith
-                                    (fadeOut(tween(110))+slideOutVertically(tween(160)){-it.coerceAtMost(20)}))
+                                else ((fadeIn(tween(220,45))+slideInHorizontally(tween(280)){(it*.06f).toInt()*(if(backwards)-1 else 1)}) togetherWith
+                                    (fadeOut(tween(110))+slideOutHorizontally(tween(160)){(it*.035f).toInt()*(if(backwards)1 else -1)}))
                                     .using(SizeTransform(clip=false){_,_->spring(dampingRatio=.92f,stiffness=420f)})
                             },label="sheet navigation",
-                        ) { shown -> content(shown,onClose) }
+                        ) { shown ->
+                            InteractionGate(shown==name) { content(shown,{if(shown==latestName&&latestName!=null)onClose()}) }
+                        }
                     }
                 }
             }

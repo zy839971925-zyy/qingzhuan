@@ -45,6 +45,8 @@ class NativePreviewActivity:ComponentActivity() {
         setContent { UiLanguageProvider {
             val system=isSystemInDarkTheme();val mode=getSharedPreferences("appearance",0).getString("theme","system");val dark=mode=="dark"||mode=="system"&&system
             SideEffect{WindowCompat.getInsetsController(window,window.decorView).apply{isAppearanceLightStatusBars=!dark;isAppearanceLightNavigationBars=!dark}}
+            val noMotion=android.provider.Settings.Global.getFloat(contentResolver,android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,1f)==0f || (getSystemService(android.content.Context.POWER_SERVICE) as android.os.PowerManager).isPowerSaveMode
+            CompositionLocalProvider(LocalMotionReduced provides noMotion) {
             QingzhuanTheme(dark){val c=MaterialTheme.colorScheme
                 Column(Modifier.fillMaxSize().background(c.background).safeDrawingPadding()){
                     Row(Modifier.fillMaxWidth().padding(12.dp),verticalAlignment=Alignment.CenterVertically){
@@ -56,6 +58,7 @@ class NativePreviewActivity:ComponentActivity() {
                     }
                     Box(Modifier.weight(1f).fillMaxWidth()){PreviewContent(file)}
                 }
+            }
             }
         }
         }

@@ -1,64 +1,69 @@
-<p align="center">
-  <img src="docs/assets/qingzhuan-icon.svg" width="96" alt="Qingzhuan Toolbox icon">
-</p>
+<p align="center"><a href="README.md">简体中文</a> · <strong>English</strong></p>
 
-<h1 align="center">Qingzhuan Toolbox</h1>
+# Qingzhuan · 轻转
 
-<p align="center">Convert, preview and organise everyday files on Android.</p>
-<p align="center">On-device processing · Batch workflows · Personalised appearance</p>
+**Choose a file, choose a format, and swipe the glass dome to convert.**
 
-<p align="center"><a href="README.md">简体中文</a> · <a href="README.en.md">English</a></p>
-<p align="center"><a href="https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases/download/v1.5.4/Qingzhuan-Toolbox-1.5.4.apk">Download 1.5.4 APK</a> · <a href="https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases">All releases</a></p>
+Native Compose UI and real backdrop refraction, backed by the existing Java engine. Processing stays on device, without accounts or a server.
 
-Qingzhuan Toolbox brings together tools for images and PDFs, documents and spreadsheets, video and motion photos, audio, and archives. Files are processed on your device, not sent to an online conversion service. Choose files through Android’s system interface, preview the results, then decide where to save or share them.
+Current official stable release: **1.5.5 / versionCode 2**, package `cn.qingzhuan.toolbox`. Its package ID and signing-certificate fingerprint match official 1.5.4, and its version code is higher; installation over an existing copy and app-data migration were not tested on a device.
 
-## One toolbox for everyday files
+[Chinese guide](README.md) · [Architecture](docs/ARCHITECTURE.en.md) · [Build guide](docs/BUILDING.md) · [Release evidence](docs/RELEASE_1_5_5.md)
 
-| Type | What you can do |
+## What's new
+
+| Interaction | Behavior |
 | --- | --- |
-| Images and PDFs | Convert JPG, PNG and WebP; turn images into PDFs; export PDF pages as images; merge or split PDFs |
-| Documents and spreadsheets | Convert text in TXT, HTML, DOCX and PDF; convert tables in XLSX, CSV, TSV and JSON |
-| Video and motion photos | Convert or compress video, extract frames, create GIFs, and extract available video from Motion Photo / Live Photo files |
-| Audio and archives | Extract M4A / WAV from media; create or extract ZIP and TAR.GZ archives; calculate SHA-256 / MD5 checksums |
-| Batch work | Import several files, browse thumbnails and previews, then save, share or delete results in batches |
+| Glass pressing | Fixed underlying track; elastic deformation stays on the active lens |
+| Formats and menu | Short staggered entrances and consistent spring feedback without delaying actions |
+| Settings | Animated advanced/custom-size and background disclosure with inactive-content guards |
+| Previews | Loaded thumbnails fade in; input and completed batches use the same browsable stack |
+| Lists | Stable-ID entry, removal and placement transitions |
+| Navigation | Explicit parent Back; deletion confirmation is cancelled first; Close dismisses the panel |
 
-## A simple conversion flow
+Original-size image defaults, advanced quality/size, per-theme overlays, bilingual UI and existing tools are preserved. The research record distinguishes source review from device acceptance.
 
-1. Import files from Photos or Android’s file picker.
-2. Browse thumbnails; swipe through multiple files or open a preview.
-3. Choose an output format and adjust the settings for that tool if needed.
-4. Press and swipe the glass panel upwards; release when it reaches the centre to start conversion.
-5. Preview the result, then save it to your media library or a folder you choose, or share it.
+## Use
 
-Images default to their orientation-corrected original dimensions and the highest encoder quality. Advanced options include Original, 4K, 1080p and 720p presets or custom dimensions, plus separate JPEG / WebP quality controls. Image and PDF output settings stay independent.
+Import from Photos or Files, review thumbnails/native preview, choose a target, and swipe the dome to the center. Early release returns by spring; reversing is supported. Real success is required before the checkmark. Images/videos save to Photos; other files use the system picker. Lists support select-all, batch save/delete and share.
 
-## Make the interface yours
+Ordinary backgrounding uses a foreground service and persisted task state. Force-stop, process death and system limits can interrupt; byte-level encoding continuation is not promised.
 
-Follow the system theme or choose light or dark mode; the interface supports system language, Simplified Chinese and English. Pick an animated glow, built-in wallpaper, solid colour, HEX colour or your own photo as a background. Photo masks have separate light- and dark-mode settings. Multi-file browsing uses responsive paging and a subtle layered effect; the gesture-led conversion panel gives feedback as you work.
+## Image policy
 
-## Download and compatibility
+Advanced off means original oriented size and quality100. PNG is lossless with no quality slider. PDF raster quality is independent. Presets fit oriented boxes3840×2160,1920×1080 or1280×720 without upscaling; non-16:9 images may not fill the box. Custom locked size fits; unlocked size may stretch/upscale. Dimensions are limited to1–32768 and64Mi output pixels plus a heap check. Excessive originals fail clearly instead of being silently reduced.
 
-- [Download Qingzhuan Toolbox 1.5.4](https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases/download/v1.5.4/Qingzhuan-Toolbox-1.5.4.apk) · [All releases](https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases)
-- Minimum Android 8.0 / API 26. Full glass refraction effects require Android 13 / API 33 or later.
-- Video encoding uses the hardware or vendor encoders available on your phone; supported formats and settings vary by device.
+Maximum-quality JPEG is still lossy. Processing uses oriented8-bit sRGB, without a guarantee of full EXIF/ICC/HDR/wide-gamut retention. Transparent JPEG regions are white. Image conversion processes the first GIF frame. Android10+ can use maximum-quality lossless WebP; older legacy encoders are not claimed lossless.
 
-<details>
-<summary>Supported formats and important limits</summary>
+## Existing tools
 
-- Transparent images converted to JPEG receive a white background. Merging, splitting or converting a PDF does not preserve its digital signature.
-- Document conversion rebuilds readable text; it is not full-fidelity layout conversion and does not include OCR. Spreadsheet conversion reads the first sheet and does not calculate formulas or preserve styles.
-- GIF output has no audio and is limited to 60 seconds. A static photo cannot recover motion data that is no longer present.
-- ZIP supports AES passwords; TAR.GZ does not. RAR5, split RAR archives and MP3 encoding are not supported.
-- Image dimensions can be set from 1 to 32,768 pixels per side, up to 64 megapixels, subject to device memory. JPEG is lossy; image output does not guarantee preservation of all EXIF, ICC, HDR or wide-colour-gamut data.
-- A foreground service can continue work when the app is moved to the background, but force-stopping the app, process termination or system execution limits may interrupt conversion.
+JPEG/PNG/WebP, images-to-PDF and PDF rendering/merge/split; trimmed video-to-GIF; video compression, mute, frame export and device-supported H.264/HEVC/AV1 MP4; compatible Motion Photo video or matching photo/MOV pairs; bounded text/first-sheet spreadsheet conversion; ZIP/TAR.GZ, supported extraction, checksums and AAC/M4A or WAV audio extraction.
 
-</details>
+No OCR, full Office layout/formula reproduction, MP3 encoding, RAR5 or multipart RAR. A still photo alone cannot restore missing Live Photo video. GIF is limited to60seconds with processing/output budgets. Unsupported video codecs are not silently substituted.
 
-## Privacy and source
+## Appearance and language
 
-The app does not request the INTERNET or all-files-access permission. It uses Android’s system file picker for files you select and keeps inputs, results and app settings on-device. Media is saved through the system media library; sharing exposes only the result you choose. Limits: up to 20 input files, 512 MiB per file and 1 GiB total. Export anything you need to keep before uninstalling.
+Choose System/Light/Dark and System/中文/English. Automatic language uses Chinese for Chinese phone languages and English otherwise. Filenames, user content, canonical session data and original license text stay untouched. Language changes do not restart conversion.
 
-- [Architecture](docs/ARCHITECTURE.md) · [Building and signing](docs/BUILDING.md) · [Device test plan](docs/DEVICE_TEST_PLAN.md)
-- The project declares GPL-3.0-only. Compatibility between GPL and the Junrar / UnRAR terms for combined distribution remains unresolved. See [`licenses/`](licenses/) and [`THIRD_PARTY_NOTICES.txt`](THIRD_PARTY_NOTICES.txt) for dependency notices.
+Backgrounds include Aurora, default, original wallpapers, HEX colors and a custom photo with blur. Light/dark overlay strengths are saved separately. Very low overlay can reduce readability. Reduced-motion/battery settings are respected. Full shader optics require Android13+; earlier Android keeps conversion and visual fallback.
 
-The formal app uses the separate application ID `cn.qingzhuan.toolbox`, so it can be installed alongside the older app and historical preview package. Formal builds require a dedicated signing key; never commit the key or its password to the repository.
+## Build and evidence
+
+JDK17+ (JDK21 recommended), SDK36, Build Tools36, Python3 and Gradle8.13. No Node, Expo, NDK, CMake or emulator.
+
+```sh
+export JAVA_HOME=/path/to/jdk21
+export ANDROID_HOME=/path/to/android-sdk
+python3 setup_tools.py
+python3 build.py --variant debug
+# Produces Qingzhuan-1.5.5-debug.apk
+# Official releases require the private production signing credentials
+# outside the repository: python3 build.py --variant release
+# Produces Qingzhuan-Toolbox-1.5.5.apk
+```
+
+Download the [official 1.5.5 APK](https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases/download/v1.5.5/Qingzhuan-Toolbox-1.5.5.apk) or read the [release notes](https://github.com/zy839971925-zyy/qingzhuan-android-toolbox/releases/tag/v1.5.5). Android Studio can open `android/`. Release signing requires the production keystore outside the repository; builds fail closed when it is unavailable.
+
+Static checks, targeted JVM/Compose tests and production APK verification are recorded in the release notes. **No emulator or physical-device acceptance was performed.** Xiaomi Android15/17 launch, optical fidelity, touch and60/90/120FPS remain unverified.
+
+There is no INTERNET or full-disk access permission. Private data is not a cloud backup; export important results before uninstalling. Third-party licenses remain independent: Kyant is Apache-2.0, historical Shader sources includeGPL-3.0, and existing GPL/Junrar compatibility concerns remain unresolved. Original wallpapers/generator useCC0. See the license review and `licenses/`.

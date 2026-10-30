@@ -2,7 +2,7 @@
 
 # Architecture · File to result
 
-Actual1.5.4 implementation: Kotlin/Compose, Kyant Backdrop1.0.6 and the existing Java engine/session. Historical RN/WebView sources are not built. MinSDK26, compile/targetSDK36.
+Actual1.5.5 implementation: Kotlin/Compose, Kyant Backdrop1.0.6 and the existing Java engine/session. Historical RN/WebView sources are not built. MinSDK26, compile/targetSDK36.
 
 `NativeHomeActivity` owns pickers/preferences/subscriptions/export routing. `NativeHome` owns selection and reversible presentation. `AppSession` owns task/files on a single worker. `Engine` and `NativeMediaEngine` produce staged outputs, then session state commits results before notifying UI. `SessionStore` persists requests/progress/unacknowledged outcomes. `ConversionService` manages notifications/liveness, not a second copy of task state.
 
@@ -15,6 +15,12 @@ The visible ring has a minimum duration; unknown engine progress is waiting feed
 Controls sample a background-only layer; the sphere samples background plus scene while remaining outside capture. Selected controls combine independent text/background layers without sampling the lens itself. Sheets share the Activity window and actual scene backdrop across handle/header/rows/insets, rather than cropping another wallpaper. Input/Back shielding lasts through exit; focus cannot escape to background controls.
 
 Image stacks keep native Pager touch/tap handling and add depth-dependent spring lag. Edge rebound only consumes residual horizontal scroll. Single cards stay static. Full shader optics require Android13+; earlier systems retain conversion and fallback rendering.
+
+## Motion ownership and inactive actions
+
+The62dp segment track has no pressure transform. Only its centered lens deforms or moves horizontally. NativeMotion owns finite stagger, drawing-only pressure, disclosure and InteractionGate; there is no new React runtime. Preview pixels fade into reserved bounds and stable-ID list items animate placement. Input and output batches share the native preview stack, with centered static single cards and a folder action for complete lists.
+
+SheetNavigation separates opening, child navigation, back and dismissal. Toolbar/system Back cancels deletion confirmation first. Exiting content keeps its drawing while losing semantics, pointer input and focus entry. SheetActions also checks current page identity at callback time, preventing retained accessibility actions from deleting/saving/navigating after exit. Reduced motion removes new displacement and elasticity. Business state is immediate and does not depend on animation completion.
 
 ## Image policy
 
@@ -34,4 +40,4 @@ Private data lives under `filesDir/inputs`, `filesDir/results` and `session-v2.j
 
 Host/Compose source: `android/app/src/main/java`; Java business source: `app/src/main/java`; assets: `native-assets`. Build uses JDK17+, Gradle8.13 and SDK/Build Tools36 without Node/Expo/NDK.
 
-Pure policy/catalog tests, two targeted Android28 JVM tests and release/package checks provide distinct narrow evidence. They do not prove physical launch, optical fidelity, touch, codec fidelity or60/90/120FPS. Major stages are committed and durably checkpointed with a flat source tree, full Git bundle, precise metadata, logs/test XML. Private keys and user reference media are excluded; read the recovery ledger before resuming.
+Pure policy/catalog, Android35 Compose bounds/state, targeted Android28 engine/locale tests and release/package checks provide distinct narrow evidence. They do not prove physical launch, optical fidelity, touch, codec fidelity or60/90/120FPS. Major stages are committed and durably checkpointed with a flat source tree, full Git bundle, precise metadata, logs/test XML. Private keys and user reference media are excluded; read the recovery ledger before resuming.

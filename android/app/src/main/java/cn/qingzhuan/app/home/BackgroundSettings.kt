@@ -46,7 +46,7 @@ fun BackgroundSettings(style:BackgroundStyle,actions:HomeActions,reduced:Boolean
         GlassSegments(listOf(GlassChoice("solid","纯色"),GlassChoice("custom","照片")),style.mode,Modifier.fillMaxWidth(),reduced=reduced) {
             if(it=="custom"&&!actions.backgroundFile().isFile)onImport()else actions.setBackgroundStyle(style.copy(mode=it))
         }
-        if(style.mode=="preset") {
+        MotionDisclosure(style.mode=="preset") {
             Row(horizontalArrangement=Arrangement.spacedBy(12.dp)) {
                 BackgroundCatalog.ids.forEachIndexed { index,id ->
                     val spoken=ui(BackgroundCatalog.titles[index])
@@ -60,7 +60,8 @@ fun BackgroundSettings(style:BackgroundStyle,actions:HomeActions,reduced:Boolean
                 }
             }
         }
-        if(style.mode=="solid") {
+        MotionDisclosure(style.mode=="solid") {
+            Column(verticalArrangement=Arrangement.spacedBy(12.dp)) {
             FlowRow(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp),verticalArrangement=Arrangement.spacedBy(10.dp)) {
                 BackgroundCatalog.palette.forEach { hex ->
                     val spoken=ui("颜色 #$hex")
@@ -78,7 +79,9 @@ fun BackgroundSettings(style:BackgroundStyle,actions:HomeActions,reduced:Boolean
             Button({valid?.let {actions.setBackgroundStyle(style.copy(colorHex=it))}},enabled=valid!=null&&valid!=style.colorHex,modifier=Modifier.align(Alignment.End)){UiText("应用颜色")}
             UiText("颜色随深浅外观柔和适配，保持文字清晰。",fontSize=12.sp,color=c.onSurfaceVariant)
         }
-        if(style.mode=="custom") {
+        }
+        MotionDisclosure(style.mode=="custom") {
+            Column(verticalArrangement=Arrangement.spacedBy(12.dp)) {
             TextButton(onImport){Glyph("file-image",modifier=Modifier.size(18.dp));Spacer(Modifier.width(8.dp));UiText("更换背景图片")}
             val dark=MaterialTheme.colorScheme.background.luminance()<.5f
             var strength by remember(style.lightOverlay,style.darkOverlay,dark){mutableFloatStateOf(if(dark)style.darkOverlay else style.lightOverlay)}
@@ -87,6 +90,7 @@ fun BackgroundSettings(style:BackgroundStyle,actions:HomeActions,reduced:Boolean
             var blur by remember(style.blur){mutableFloatStateOf(style.blur)}
             UiText("模糊 · ${blur.toInt()}",fontSize=13.sp,color=c.onSurfaceVariant)
             Slider(blur,{blur=it},onValueChangeFinished={actions.setBackgroundStyle(style.copy(blur=blur))},valueRange=0f..40f)
+        }
         }
     }
 }

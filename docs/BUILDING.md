@@ -2,48 +2,61 @@
 
 ## 环境
 
-- JDK 17 或更高版本（建议 JDK 21 / Android Studio JBR）。
-- Android SDK Platform 36、Build Tools 36.0.0；Gradle 8.13 由 wrapper 管理。
-- Python 3 用于仓库根目录构建脚本。APK 不需要 Node、Expo、NDK、CMake 或模拟器。
-- 首次构建需要网络访问 Google / Maven 依赖仓库；`setup_tools.py` 只检查环境，不会下载 SDK。
+- JDK17+；建议JDK21/Android Studio JBR。正常APK编译可用JDK17；本次Compose JVM检查用独立JDK21执行器。
+- Android SDK Platform36、Build Tools36.0.0；Gradle8.13由wrapper使用。
+- Python3用于根构建脚本。APK本身不依赖Python、Node、Expo、NDK、CMake或模拟器。
+- 首次构建需访问Google/Maven依赖仓库；源包含既有 `libs/` 和许可，不含SDK/Gradle缓存。
+
+Android Studio打开 `android/`，选择JDK、SDK后同步构建。命令行：
 
 ```sh
 export JAVA_HOME=/path/to/jdk21
 export ANDROID_HOME=/path/to/android-sdk
 python3 setup_tools.py
-```
-
-## 正式版
-
-当前 1.5.4 正式包使用独立应用 ID `cn.qingzhuan.toolbox`、versionCode `1` 和 versionName `1.5.4`，可与旧包 `cn.qingzhuan.app` 和预览包 `cn.qingzhuan.app.preview` 并存。Java/Kotlin namespace 仍是 `cn.qingzhuan.app`。
-
-正式 APK 必须使用专用发布 keystore。构建前设置 `QINGZHUAN_RELEASE_KEYSTORE`、`QINGZHUAN_RELEASE_STORE_PASSWORD`、`QINGZHUAN_RELEASE_KEY_ALIAS`、`QINGZHUAN_RELEASE_KEY_PASSWORD`，从本地安全的密钥管理方式加载；不要把口令写进命令历史、仓库、日志或聊天，也不要上传 keystore 到公开仓库。缺少签名配置时，根脚本会拒绝 release 构建，不会退回 Android debug key。
-
-```sh
 python3 build.py --variant release
-# Qingzhuan-Toolbox-1.5.4.apk
 ```
 
-同一 application ID 的后续版本必须继续使用这把 keystore；备份丢失或泄露都会影响后续更新，应在独立安全位置备份。APK 发布前核对包名、版本、签名、ZIP 对齐、资源/DEX 和文件哈希。
+也可写本地、不可提交的 `android/local.properties`：
 
-## Debug 与历史预览
+```properties
+sdk.dir=/absolute/path/to/android-sdk
+```
 
-`python3 build.py --variant debug` 仅用于本机调试，不能当作正式分发包。1.5.4-preview 的 APK 使用不同的包名和开发证书；旧预览安装更新需要原预览 keystore。当前正式包不是对预览包签名升级，而是独立的新应用。
+调试包可直接运行 `python3 build.py --variant debug`，输出 `Qingzhuan-1.5.5-debug.apk`。正式版需通过环境变量提供私有生产密钥路径、口令和别名：`QINGZHUAN_RELEASE_KEYSTORE`、`QINGZHUAN_RELEASE_STORE_PASSWORD`、`QINGZHUAN_RELEASE_KEY_ALIAS`、`QINGZHUAN_RELEASE_KEY_PASSWORD`；然后运行 `python3 build.py --variant release`，输出 `Qingzhuan-Toolbox-1.5.5.apk`。不要把密钥、口令或本机私有路径提交进仓库。缺少任一生产凭据时Release构建会停止，不会使用debug证书替代。
 
-历史 1.5.3/1.5.4-preview 构建记录保存在 `docs/RELEASE_1_5_3.md`、`docs/RELEASE_1_5_4.md` 与 `handoff/`，不代表当前正式包已重新构建或设备验收。
+## 生产签名必须保留
 
-## 测试
+正式版应用ID为 `cn.qingzhuan.toolbox`，versionCode 2；它与正式1.5.4使用同一生产证书，故Android应用身份和签名升级链连续。正式密钥不在仓库、源码归档或APK内，必须从授权的私有存储取得，并仅通过本机环境变量交给构建工具。不要生成替代密钥，也不要把密码写进脚本、终端日志或仓库。新密钥不能更新已安装的旧证书应用。
+
+开发APK可以使用独立调试签名；Release目标明确要求生产密钥，缺失时失败关闭。发行APK应单独核对包名、标签、versionCode、证书指纹和ZIP对齐。
+
+## 最必要的检查
 
 ```sh
 python3 scripts/check_image_policy.py
 python3 scripts/check_localization.py
 cd android
-./gradlew :app:testReleaseUnitTest --tests cn.qingzhuan.app.Refined154Test
-./gradlew :app:assembleRelease
+QZ_TEST_JAVA=/path/to/jdk21/bin/java ./gradlew :app:testReleaseUnitTest --tests cn.qingzhuan.app.Motion155Test --tests cn.qingzhuan.app.Refined154Test
+# Configure the private release signing environment, then:
+python3 ../build.py --variant release
 ```
 
-前两项为源码策略/本地化检查；Robolectric 测试是在 JVM 的 Android 28 shadow 环境执行，不是模拟器或真机验收。Release assembly 需要所有 `QINGZHUAN_RELEASE_*` 签名变量。若出现 dex/resource 重复，保留日志后可清理构建目录并重试，不要删除源码、结果或 keystore。
+前两项需要JAVA_HOME指向完整JDK。Compose UI回归在Robolectric Android35原生图形影子上运行，另保留2项Android28引擎/语言检查；没有启动安卓模拟器。Kyant Backdrop发布的JVM字节码为class65，因此UI测试执行器需要JDK21（QZ_TEST_JAVA），即使正常APK的D8/Gradle构建用JDK17也可成功。首次会下载Robolectric框架和原生图形支持。只运行上面必要测试，不默认跑历史整套端到端回归。
+
+若DEX报告生成资源R类重复，先保留日志，再 `:app:clean :app:assembleRelease --no-watch-fs -Pkotlin.incremental=false`；只清理构建产物，不能删除源码、结果或签名。资源/缓存失败不能当成设备崩溃证据。
+
+交付时核对apksigner证书、versionCode/package/label、ZIP对齐、资源/DEX及文件哈希。源码包 `handoff/` 记录实际构建源提交、签名输出、构建日志和JVM测试XML。源码归档提交可以另含文档修改；应用代码差异必须检查为空。
 
 ## English quick guide
 
-Use JDK 17+ (21 recommended), Android SDK Platform 36 and Build Tools 36.0.0. `setup_tools.py` only checks the toolchain. The production app ID is `cn.qingzhuan.toolbox`, distinct from both the old app and the preview. Set all four `QINGZHUAN_RELEASE_*` variables from a secure local secret manager before `python3 build.py --variant release`. The script refuses unsigned/debug-signed release builds. Keep the keystore backed up securely; never commit keys or passwords. Run the two targeted checks and Gradle unit test before release; Robolectric is not device acceptance.
+Use JDK17+ (21 recommended), SDK36 and Build Tools36. SetJAVA_HOME/ANDROID_HOME, run setup_tools.py then build.py --variant release, or openandroid/ in Android Studio. No emulator/Node/Expo/NDK is required. First dependency resolution needs network access.
+
+The stable application ID and production certificate must match the previous official release. Keep the production keystore outside source control and provide it through the four QINGZHUAN_RELEASE_* environment variables; a missing key fails closed. A new certificate cannot update an existing installation.
+
+The selected Robolectric cases use Android35 Compose graphics/state and Android28 engine/locale shadows, not a physical device. UI tests require JDK21 for Backdrop class65; normal APK compilation may use JDK17. Build/signature checks do not prove visual quality, launch on an OEM device or FPS. Exact evidence and remaining checks are in RELEASE_1_5_5.md.
+
+## 本轮构建环境恢复
+
+源码包handoff/environment-bootstrap保留本轮非密钥恢复脚本。云端恢复时将其复制为源码目录的同级tooling/，restore_toolchain.py安装JDK17/Gradle8.13/SDK36；需要JVM UI检查时再运行restore_test_jdk.py取得JDK21执行器。run_gradle.py仅用于此环境代理/CA配置；普通Android Studio用户无需这些包装脚本。SDK路径与私钥位置必须根据本机重新设置。构建缓存不属于恢复源码，不打包。
+
+若compileReleaseArtProfile报告Failed requirement，先保存完整错误与测试XML，清理派生build目录后执行 `:app:clean :app:assembleRelease --no-watch-fs -Pkotlin.incremental=false`；不要把失败APK当交付，也不要删除源码/私钥或以关闭诊断代替修复。该处置用于使生成DEX与ART profile从一致的干净输入重建，不代表已证明所有同名错误都由缓存引起。

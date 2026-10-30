@@ -1,9 +1,8 @@
 """Small host regression check of the actual production sizing policy. No Android emulator."""
 from pathlib import Path
-import subprocess,tempfile
-from jdk_tools import jdk_bin
+import subprocess,tempfile,os,shutil
 root=Path(__file__).resolve().parents[1]
-jdk=jdk_bin(root)
+jdk=Path(os.environ.get('JAVA_HOME',root.parent/'tooling/zulu17.62.17-ca-jdk17.0.17-linux_x64'))/'bin'
 source='''import cn.qingzhuan.app.ImageTransformPolicy;
 public class ImagePolicySmoke {
  static int checks=0;

@@ -1,5 +1,6 @@
 package cn.qingzhuan.app
 
+import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.foundation.Image
@@ -57,14 +58,15 @@ fun PreviewCard(
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
+        val imageAlpha by animateFloatAsState(if(bitmap!=null)1f else 0f,if(LocalMotionReduced.current)snap()else tween(200),label="thumbnail ready")
+        if(bitmap==null || imageAlpha<1f)FileEmblem(file,size)
         if (bitmap != null)
             Image(
                 bitmap!!.asImageBitmap(),
                 ui("图片预览：${file.name}"),
-                Modifier.fillMaxSize(),
+                Modifier.fillMaxSize().graphicsLayer{alpha=imageAlpha},
                 contentScale = ContentScale.Crop,
             )
-        else FileEmblem(file, size)
     }
 }
 
@@ -75,6 +77,7 @@ fun FilePreviewDeck(
     actions: HomeActions,
     cardSize: Dp,
     reduced: Boolean = false,
+    output: Boolean = false,
     onManage: () -> Unit,
 ) {
     if (files.isEmpty()) return
@@ -82,9 +85,10 @@ fun FilePreviewDeck(
     val pager = rememberPagerState(pageCount = { files.size })
     val focused = files[pager.currentPage.coerceIn(files.indices)]
     Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(Modifier.fillMaxWidth()) {
         if (files.size == 1)
-            Box(Modifier.height(cardSize + 20.dp), contentAlignment = Alignment.Center) {
-                PreviewCard(files[0], actions, cardSize, onClick = { actions.openInput(files[0].id) })
+            Box(Modifier.fillMaxWidth().height(cardSize + 20.dp), contentAlignment = Alignment.Center) {
+                PreviewCard(files[0], actions, cardSize, output=output, onClick = { if(output)actions.open(files[0].id)else actions.openInput(files[0].id) })
             }
         else
             BoxWithConstraints(Modifier.fillMaxWidth().height(cardSize + 24.dp)) {
@@ -122,13 +126,20 @@ fun FilePreviewDeck(
                             alpha = (1f - .15f * abs(offset)).coerceIn(.25f, 1f)
                         }
                     ) {
-                        PreviewCard(files[page], actions, cardSize, onClick = { actions.openInput(files[page].id) })
+                        PreviewCard(files[page], actions, cardSize, output=output, onClick = { if(output)actions.open(files[page].id)else actions.openInput(files[page].id) })
                     }
                 }
             }
+        if(files.size>1)Box(Modifier.align(Alignment.CenterEnd).padding(end=16.dp)) {
+            SmallAction("folder",if(output)"查看全部结果"else"管理文件",onClick=onManage)
+        }
+        }
         Spacer(Modifier.height(12.dp))
+        AnimatedContent(focused.id,transitionSpec={fadeIn(if(reduced)snap()else tween(160)) togetherWith fadeOut(if(reduced)snap()else tween(80))},label="preview filename") { id ->
+        val shown=files.firstOrNull{it.id==id}?:focused
+        Column(horizontalAlignment=Alignment.CenterHorizontally) {
         Text(
-            focused.name,
+            shown.name,
             Modifier.padding(horizontal = 24.dp),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -137,10 +148,12 @@ fun FilePreviewDeck(
         )
         Spacer(Modifier.height(7.dp))
         UiText(
-            if (files.size == 1) formatSize(focused.size)
-            else "${pager.currentPage+1} / ${files.size} · ${formatSize(files.sumOf{it.size})}",
+            if (files.size == 1) formatSize(shown.size)
+            else "${files.indexOfFirst{it.id==id}.coerceAtLeast(0)+1} / ${files.size} · ${formatSize(files.sumOf{it.size})}",
             fontSize = 12.sp,
             color = c.onSurfaceVariant,
         )
+        }
+        }
     }
 }

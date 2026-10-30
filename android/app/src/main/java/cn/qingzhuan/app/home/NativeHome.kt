@@ -59,7 +59,7 @@ fun NativeHome(
     actions: HomeActions,
 ) {
     val controls = rememberLayerBackdrop()
-    CompositionLocalProvider(LocalControlBackdrop provides controls) {
+    CompositionLocalProvider(LocalControlBackdrop provides controls, LocalMotionReduced provides reduced) {
         NativeHomeBody(
             snapshot,
             conversionOutcome,
@@ -99,7 +99,8 @@ private fun NativeHomeBody(
         var target by remember { mutableStateOf<String?>(null) }
         var formatsExpanded by remember { mutableStateOf(false) }
         var fileEntrance by remember { mutableFloatStateOf(0f) }
-        var sheet by remember { mutableStateOf<String?>(null) }
+        val navigation = remember { SheetNavigation() }
+        val sheet = navigation.current
         var sheetVisible by remember { mutableStateOf(false) }
         val backdrop = rememberLayerBackdrop()
         var phase by remember { mutableStateOf(HomePhase.EMPTY) }
@@ -152,7 +153,7 @@ private fun NativeHomeBody(
             phase = if (ids.isEmpty()) HomePhase.EMPTY else HomePhase.READY
             p = 0f
             horizontal = 0f
-            sheet = null
+            navigation.close()
         }
         LaunchedEffect(importEpoch, visualBusy) {
             if (importEpoch > handledImport && !visualBusy) {
@@ -227,7 +228,7 @@ private fun NativeHomeBody(
             phase = HomePhase.CONVERTING
             fill = 0f
             check = 0f
-            sheet = null
+            navigation.close()
             animation =
                 scope.launch {
                     if (reduced) {
@@ -327,7 +328,7 @@ private fun NativeHomeBody(
                     phase == HomePhase.SUCCESS
         ) {
             when {
-                sheet != null -> sheet = null
+                sheet != null -> navigation.back()
                 formatsExpanded -> formatsExpanded = false
                 busy -> actions.notice("请等待当前任务结束，或点击取消")
                 target != null -> {
@@ -472,7 +473,7 @@ private fun NativeHomeBody(
                                     min(w - 56, h * .43f).dp,
                                     reduced,
                                 ) {
-                                    sheet = "import"
+                                    navigation.open("import")
                                 }
                             HomePhase.READY,
                             HomePhase.CONVERTING -> {
@@ -502,7 +503,7 @@ private fun NativeHomeBody(
                                             (if (landscape) 72 else if (h < 720) 80 else 104).dp,
                                             reduced=reduced,
                                         ) {
-                                            if (!busy) sheet = "inputs"
+                                            if (!busy) navigation.open("inputs")
                                         }
                                     }
                                     Column(
@@ -525,18 +526,18 @@ private fun NativeHomeBody(
                                         Spacer(Modifier.height(12.dp))
                                         val presentation=FormatPresentation(formatsExpanded||formats.size>4,
                                             if(formatsExpanded)conversionChoices(tools,files) else formats.map{ConversionChoice(tool?.id?:toolId,it,"")})
-                                        AnimatedContent(presentation,transitionSpec={(fadeIn(tween(200)) togetherWith fadeOut(tween(130))).using(SizeTransform(clip=false,sizeAnimationSpec={_,_->spring(dampingRatio=.9f,stiffness=420f)}))},label="format capsule/grid") { shown->
+                                        AnimatedContent(presentation,transitionSpec={if(reduced)(fadeIn(snap()) togetherWith fadeOut(snap())).using(SizeTransform(clip=false){_,_->snap()})else (fadeIn(tween(200)) togetherWith fadeOut(tween(130))).using(SizeTransform(clip=false,sizeAnimationSpec={_,_->spring(dampingRatio=.9f,stiffness=420f)}))},label="format capsule/grid") { shown->
                                             if(shown.grid) {
                                                 val columns=if(density.fontScale>1.3f)2 else 3
                                                 Column(Modifier.fillMaxWidth().heightIn(max=(if(landscape)max(90f,h-230)else min(232f,h*.29f)).dp).verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(10.dp)) {
                                                     shown.choices.chunked(columns).forEach { row->
                                                         Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(9.dp)) {
-                                                            row.forEach { choice->GlassButton(GlassChoice(choice.key,choice.label),choice.tool==toolId&&choice.target==target,!busy&&shown==presentation,Modifier.weight(1f)) {toolId=choice.tool;target=choice.target;formatsExpanded=false;actions.haptic()} }
+                                                            row.forEach { choice->key(choice.key){MotionReveal(shown.choices.indexOf(choice),Modifier.weight(1f)){GlassButton(GlassChoice(choice.key,choice.label),choice.tool==(tool?.id?:toolId)&&choice.target==target,!busy&&shown==presentation,Modifier.fillMaxWidth()) {toolId=choice.tool;target=choice.target;formatsExpanded=false;actions.haptic()}}} }
                                                             repeat(columns-row.size){Spacer(Modifier.weight(1f))}
                                                         }
                                                     }
                                                 }
-                                            } else GlassSegments(shown.choices.map{GlassChoice(it.target,it.label)},target,Modifier.fillMaxWidth(),!busy&&shown==presentation,reduced) {target=it;actions.haptic()}
+                                            } else GlassSegments(shown.choices.map{GlassChoice(it.target,it.label)},target,Modifier.fillMaxWidth(),!busy&&shown==presentation,reduced) {toolId=tool?.id?:toolId;target=it;actions.haptic()}
                                         }
                                         Spacer(Modifier.height(18.dp))
                                         Row(
@@ -544,9 +545,9 @@ private fun NativeHomeBody(
                                             horizontalArrangement = Arrangement.SpaceBetween,
                                         ) {
                                             SmallAction("settings-2", "转换选项", !busy) {
-                                                sheet = "options"
+                                                navigation.open("options")
                                             }
-                                            SmallAction("plus", "添加文件", !busy) { sheet = "import" }
+                                            SmallAction("plus", "添加文件", !busy) { navigation.open("import") }
                                         }
                                     }
                                 }
@@ -561,12 +562,9 @@ private fun NativeHomeBody(
                                             .fillMaxWidth(),
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                     ) {
-                                        PreviewCard(
-                                            completed.first(),
-                                            actions,
-                                            (if (landscape) 72 else 96).dp,
-                                            output = true,
-                                        ) {actions.open(completed.first().id)}
+                                        FilePreviewDeck(completed,actions,(if(landscape)72 else 96).dp,reduced=reduced,output=true) {
+                                            navigation.open("results")
+                                        }
                                         Spacer(Modifier.height(18.dp))
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically,
@@ -587,24 +585,6 @@ private fun NativeHomeBody(
                                                 fontSize = 13.sp,
                                             )
                                         }
-                                        Spacer(Modifier.height(17.dp))
-                                        Text(
-                                            completed.first().name,
-                                            Modifier.padding(horizontal = 28.dp),
-                                            maxLines = 2,
-                                            overflow = TextOverflow.Ellipsis,
-                                            fontSize = 18.sp,
-                                            textAlign = TextAlign.Center,
-                                            fontWeight = FontWeight.Medium,
-                                        )
-                                        Spacer(Modifier.height(7.dp))
-                                        UiText(
-                                            formatSize(completed.sumOf { it.size }) +
-                                                (if (completed.size > 1) ui(" · ${completed.size} 份文件")
-                                                else ""),
-                                            fontSize = 12.sp,
-                                            color = c.onSurfaceVariant,
-                                        )
                                         Spacer(Modifier.height(30.dp))
                                         Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                                             SmallAction("download", "保存转换结果", !busy) {
@@ -612,7 +592,7 @@ private fun NativeHomeBody(
                                             }
                                             SmallAction("plus", "继续转换下一个文件", !busy) {
                                                 useFiles(emptyList())
-                                                sheet = "import"
+                                                navigation.open("import")
                                             }
                                         }
                                     }
@@ -756,7 +736,7 @@ private fun NativeHomeBody(
                         .padding(top = 10.dp, end = 16.dp)
                 ) {
                     IconButton(
-                        { sheet = "menu" },
+                        { navigation.open("menu") },
                         enabled = !busy,
                         modifier = Modifier.controlGlass(controlsBackdrop, CircleShape),
                     ) {
@@ -776,8 +756,8 @@ private fun NativeHomeBody(
                 mode,
                 backgroundStyle,
                 actions,
-                { sheet = it },
-                { sheet = null },
+                { navigation.navigate(it) },
+                { navigation.close() },
                 { useFiles(it) },
                 {
                     toolId = it.id
@@ -789,6 +769,10 @@ private fun NativeHomeBody(
                 reduced=reduced,
                 backdrop=backdrop,
                 onVisible={sheetVisible=it},
+                onBack={navigation.back()},
+                canGoBack=navigation.canGoBack,
+                backwards=navigation.backwards,
+                isCurrentPage={navigation.current==it},
                 targetFormat=target,
             )
         }

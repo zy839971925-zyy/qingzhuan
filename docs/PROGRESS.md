@@ -1,6 +1,6 @@
-# 当前1.5.4
+# 当前1.5.5
 
-以CURRENT_CHECKPOINT.md、RELEASE_1_5_4.md与DEVELOPMENT_1_5_4.md为准。下文为历史记录。
+以CURRENT_CHECKPOINT.md、RELEASE_1_5_5.md与DEVELOPMENT_1_5_5.md为准。下文为历史记录。
 
 # 当前1.5.3
 

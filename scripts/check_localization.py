@@ -1,7 +1,6 @@
 """Check the catalog and actual pure Java matcher. Does not translate user content."""
 from pathlib import Path
-import json,re,subprocess,tempfile
-from jdk_tools import jdk_bin
+import json,re,subprocess,tempfile,os
 root=Path(__file__).resolve().parents[1]
 data=json.loads((root/'native-assets/strings_en.json').read_text())
 missing=[]
@@ -12,7 +11,7 @@ for p in (root/'android/app/src/main/java').rglob('*.kt'):
   if raw not in data['exact'] and raw not in ['Jetpack Compose 原生首页','原生文件引擎初始化','文件引擎初始化']:missing.append((p.name,raw))
 assert not missing,missing
 assert all(value.strip() for value in data['exact'].values())
-jdk=jdk_bin(root)
+jdk=Path(os.environ.get('JAVA_HOME',root.parent/'tooling/zulu17.62.17-ca-jdk17.0.17-linux_x64'))/'bin'
 def literal(s):return json.dumps(s,ensure_ascii=False)
 source='import cn.qingzhuan.app.TextCatalog;import java.util.*;public class CatalogSmoke{public static void main(String[]args){Map<String,String> m=new HashMap<>();List<String[]> r=new ArrayList<>();'
 source+=''.join('m.put('+literal(k)+','+literal(v)+');' for k,v in data['exact'].items())

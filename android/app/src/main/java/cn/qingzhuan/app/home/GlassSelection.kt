@@ -41,7 +41,7 @@ fun GlassSegments(choices:List<GlassChoice>,selectedValue:String?,modifier:Modif
     val keys=choices.map { it.value }
     val selected=keys.indexOf(selectedValue)
     var pressEpoch by remember { mutableIntStateOf(0) }
-    val pressSources=remember(keys,pressEpoch){choices.map{MutableInteractionSource()}}
+    val pressSources=remember(keys,pressEpoch,enabled){choices.map{MutableInteractionSource()}}
     val pressFlags=pressSources.map{it.collectIsPressedAsState().value}
     val pressed=pressFlags.any{it}
     val scope=rememberCoroutineScope()
@@ -58,7 +58,10 @@ fun GlassSegments(choices:List<GlassChoice>,selectedValue:String?,modifier:Modif
         settling?.cancel();val end=index.coerceIn(0,choices.lastIndex).toFloat()
         if(reduced)position=end else settling=scope.launch { animate(position,end,animationSpec=spring(dampingRatio=.68f,stiffness=460f)) { value,_->position=value.coerceIn(-.075f,choices.lastIndex+.075f) } }
     })
-    LaunchedEffect(selected,keys,enabled,reduced) { if(!dragging&&selected>=0)settle(selected) }
+    LaunchedEffect(selected,keys,enabled,reduced) {
+        if(!enabled){dragging=false;stretch=0f;settling?.cancel();position=selected.coerceAtLeast(0).toFloat()}
+        else if(!dragging&&selected>=0)settle(selected)
+    }
     DisposableEffect(lifecycle,keys,enabled) {
         val observer=LifecycleEventObserver { _,event->if(event==Lifecycle.Event.ON_STOP){settling?.cancel();dragging=false;stretch=0f;pressEpoch++;position=latestSelected.coerceAtLeast(0).toFloat()} }
         lifecycle.addObserver(observer)
@@ -67,7 +70,7 @@ fun GlassSegments(choices:List<GlassChoice>,selectedValue:String?,modifier:Modif
     val pressure by animateFloatAsState(if((pressed||dragging)&&enabled)1f else 0f,if(reduced)snap()else spring(dampingRatio=.62f,stiffness=680f),label="glass pressure")
     val elastic by animateFloatAsState(if(dragging)stretch else 0f,if(reduced)snap()else spring(dampingRatio=.72f,stiffness=560f),label="glass stretch")
     val visibility by animateFloatAsState(if(selected>=0||dragging)1f else 0f,if(reduced)snap()else tween(140),label="glass thumb")
-    BoxWithConstraints(modifier.height(62.dp).graphicsLayer{scaleX=1f+pressure*.012f;scaleY=1f+pressure*.025f}.selectableGroup().controlGlass(base,RoundedCornerShape(31.dp)).border(.6.dp,c.outline.copy(alpha=.38f),RoundedCornerShape(31.dp))) {
+    BoxWithConstraints(modifier.height(62.dp).selectableGroup().controlGlass(base,RoundedCornerShape(31.dp)).border(.6.dp,c.outline.copy(alpha=.38f),RoundedCornerShape(31.dp))) {
         val cell=(maxWidth-10.dp)/choices.size
         val density=LocalDensity.current
         val px=with(density){cell.toPx()};val inset=with(density){5.dp.toPx()}
@@ -106,9 +109,10 @@ fun GlassSegments(choices:List<GlassChoice>,selectedValue:String?,modifier:Modif
 @Composable
 fun GlassMenuButton(expanded:Boolean,enabled:Boolean,reduced:Boolean,onClick:()->Unit) {
     val c=MaterialTheme.colorScheme
+    val interaction=rememberGlassInteraction()
     val spoken=ui(if(expanded)"收起转换格式"else"展开转换格式")
     val angle by animateFloatAsState(if(expanded)180f else 0f,if(reduced)snap()else tween(240),label="format disclosure")
-    Row(Modifier.height(44.dp).controlGlass(LocalControlBackdrop.current,RoundedCornerShape(22.dp)).border(.6.dp,c.outline.copy(alpha=.38f),RoundedCornerShape(22.dp)).clickable(enabled=enabled,onClick=onClick).semantics{role=Role.Button;contentDescription=spoken}.padding(horizontal=15.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+    Row(Modifier.height(48.dp).glassPressFeedback(interaction,enabled).controlGlass(LocalControlBackdrop.current,RoundedCornerShape(24.dp)).border(.6.dp,c.outline.copy(alpha=.38f),RoundedCornerShape(24.dp)).clickable(enabled=enabled,interactionSource=interaction,indication=LocalIndication.current,onClick=onClick).semantics{role=Role.Button;contentDescription=spoken}.padding(horizontal=15.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(10.dp)) {
         UiText("转换为",fontSize=12.sp)
         Glyph("chevron-down",modifier=Modifier.size(16.dp).graphicsLayer{rotationZ=angle},color=c.onSurfaceVariant)
     }
@@ -118,13 +122,14 @@ fun GlassMenuButton(expanded:Boolean,enabled:Boolean,reduced:Boolean,onClick:()-
 fun GlassButton(choice:GlassChoice,selected:Boolean=false,enabled:Boolean=true,modifier:Modifier=Modifier,onClick:()->Unit) {
     val c=MaterialTheme.colorScheme
     val spoken=ui(choice.label)
-    Column(modifier.height(52.dp).controlGlass(LocalControlBackdrop.current,RoundedCornerShape(20.dp))
+    val interaction=rememberGlassInteraction()
+    Column(modifier.heightIn(min=52.dp).glassPressFeedback(interaction,enabled).controlGlass(LocalControlBackdrop.current,RoundedCornerShape(20.dp))
         .background(c.primary.copy(alpha=if(selected).065f else 0f),RoundedCornerShape(20.dp))
         .border(if(selected)1.dp else .6.dp,c.outline.copy(alpha=if(selected).95f else .38f),RoundedCornerShape(20.dp))
-        .clickable(enabled=enabled,onClick=onClick).semantics{this.selected=selected;role=Role.Button;contentDescription=spoken}.padding(horizontal=6.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center) {
+        .clickable(enabled=enabled,interactionSource=interaction,indication=LocalIndication.current,onClick=onClick).semantics{this.selected=selected;role=Role.Button;contentDescription=spoken}.padding(horizontal=6.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center) {
         Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(4.dp)) {
             UiText(choice.label,fontSize=13.sp,fontWeight=FontWeight.Medium,maxLines=1,overflow=TextOverflow.Ellipsis)
-            if(selected)Glyph("check",modifier=Modifier.size(12.dp),color=c.primary)
+            androidx.compose.animation.AnimatedVisibility(selected,enter=if(LocalMotionReduced.current)androidx.compose.animation.EnterTransition.None else androidx.compose.animation.fadeIn(tween(160))+androidx.compose.animation.scaleIn(spring(dampingRatio=.7f,stiffness=600f)),exit=if(LocalMotionReduced.current)androidx.compose.animation.ExitTransition.None else androidx.compose.animation.fadeOut(tween(100))) { Glyph("check",modifier=Modifier.size(12.dp),color=c.primary) }
         }
 
     }

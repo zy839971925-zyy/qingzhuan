@@ -1,4 +1,4 @@
-# 轻转 1.5.4 / Qingzhuan 1.5.4
+# 轻转 1.5.5 / Qingzhuan 1.5.5
 
 组合应用以 GPL-3.0-only 提供，见 LICENSE。Android 转换引擎保留其既有第三方许可。
 
@@ -3828,3 +3828,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 1.5.4修改：原尺寸图片策略、可选高级尺寸/质量、独立深浅色照片遮罩、中英文呈现、分层弹簧卡片。原转换引擎与第三方许可保留。
 1.5.4 changes: original-size image policy, optional advanced size/quality, per-theme photo overlays, bilingual presentation, spring-driven card layers. Existing engine and third-party licenses are retained.
+
+1.5.5修改：稳定玻璃底座、原生有限错峰/按压/披露/预览/列表动画、多结果浏览、层级返回和退场动作保护。设计资料仅研究机制，未引入React运行时。
+1.5.5 changes: stationary glass track, native finite entrance/press/disclosure/preview/list motion, browsable results, hierarchical Back and inactive-page action guards. No React runtime added.

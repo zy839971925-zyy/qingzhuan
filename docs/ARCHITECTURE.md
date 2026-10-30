@@ -2,7 +2,7 @@
 
 # 技术架构 · 从文件到结果
 
-本文描述1.5.4实际源码：Kotlin/Jetpack Compose + Kyant Backdrop1.0.6 + 原Java会话/转换引擎。历史RN/WebView不参与APK。最低API26，compile/targetSDK36；正式包名 `cn.qingzhuan.toolbox`；Java/Kotlin namespace 仍为 `cn.qingzhuan.app`。1.5.4预览包的历史验证见[预览发布记录](RELEASE_1_5_4.md)。
+本文描述1.5.5实际源码：Kotlin/Jetpack Compose + Kyant Backdrop1.0.6 + 原Java会话/转换引擎。历史RN/WebView不参与APK。最低API26，compile/targetSDK36；应用ID `cn.qingzhuan.toolbox`（namespace仍为`cn.qingzhuan.app`）。验证事实见[发布记录](RELEASE_1_5_5.md)。
 
 ## 主链路
 
@@ -25,7 +25,8 @@ flowchart TD
 | --- | --- |
 | 宿主 | `NativeHomeActivity.kt`：选择器、偏好、会话订阅、保存/分享，不实现转换 |
 | 首页 | `home/NativeHome.kt`：输入ID、目标、展开格式、共享进度p、交互阶段与球内反馈 |
-| 模态 | `GlassSheetHost.kt`、`NativeSheets.kt`：材质、过渡、焦点/Back、列表和参数 |
+| 模态 | `GlassSheetHost.kt`、`NativeSheets.kt`、`SheetNavigation.kt`：材质、层级返回、焦点/Back、列表和参数 |
+| 动效 | `NativeMotion.kt`：共享按压、有限错峰、渐进披露和退场交互阻挡；`SheetActions.kt`阻断旧页回调 |
 | 能力 | `HomeModels.kt`、`ToolRouting.java`：整批共同能力、目标过滤，编码器选项来自实际探测 |
 | 图像 | `ImageOptionsPanel.kt`、`ImageTransformPolicy.java`、`Engine.java`：高级开关、几何与明确编码质量 |
 | 媒体 | `NativeMediaEngine.java`、`MediaOptions.java`、`MotionPhoto.java`、`GifWriter.java` |
@@ -46,6 +47,14 @@ flowchart TD
 GlassSheetHost与Activity同窗口，直接采样主场景；24dp磨砂/弱折射贯穿把手、标题、正文和底部安全区。没有再次裁切照片，也没有独立不透明弹窗系统栏；内部控件采样面板材质层。退出未结束仍接管Back/遮挡，背景隐藏无障碍且不可键盘聚焦，面板焦点组禁止移出。列表有界，删除确认在列表上方。
 
 卡片保留Pager触摸阈值、点击和分页；即时页位置与弹簧滞后位置共同产生分层扇形反馈。边界弹性只消费未处理的横向增量。单张静止，生命周期停止清理边界动画，减少动效跳过弹性。API33+使用RuntimeShader，旧系统降级；实际触感/帧时间需设备测量。
+
+## 动效、交互与层级
+
+玻璃分段底座固定62dp，父层不做缩放/位移。上层镜片中心Y固定，只在绘制层缩放和横向移动；先前父层缩放导致真实屏幕顶部63→60.97px的漂移，已由Compose回归约束。普通按钮只做居中绘制变形，不重排周围内容。
+
+NativeMotion把按压、最多180ms错峰、渐进披露统一到本地UI层。缩略图在后台解码后200ms淡入，预留尺寸不改变；文件名和计数在短过渡中保持原文。列表用稳定ID的原生位置动画。减少动态时取消新位移/弹性。输入和结果共用FilePreviewDeck，单张居中静止，多张保持原Pager弹性，侧边文件夹打开完整列表。
+
+SheetNavigation区分首页打开、子页导航、返回和关闭。系统与工具栏返回先取消删除确认，再退父页。AnimatedContent旧页可继续绘制但InteractionGate清除语义、阻断初始输入并禁止进入焦点；SheetActions另按当前页身份检查回调，使旧无障碍动作也不能再保存、删除、导航或修改偏好。任务不等待UI动画完成。
 
 ## 图片输出策略
 
@@ -73,6 +82,6 @@ AppSession保存applicationContext，单工作线程串行执行；Activity和�
 
 Compose/宿主在 `android/app/src/main/java`，原Java业务在 `app/src/main/java`；`native-assets`合并资产。JDK17+、Gradle8.13、SDK/Build Tools36，无Node/Expo/NDK。
 
-策略/文案/两个Android28 JVM检查、编译、包身份是不同证据，不证明真机光学、帧率或全部编码保真。旧整套UI回归未在本轮重跑。
+策略/文案、Android35 Compose几何与状态、Android28引擎/语言、编译、包身份是不同证据，不证明真机光学、帧率或全部编码保真。旧整套UI回归未在本轮重跑。
 
 各阶段提交Git并持久替换同一源码检查点；ZIP含平面源码、完整Git bundle、RESUME、日志和测试XML。私钥独立保存，不入Git/源码。先读CURRENT_CHECKPOINT和DEVELOPMENT再接续，不能在新检查点成功前删除旧临时副本。

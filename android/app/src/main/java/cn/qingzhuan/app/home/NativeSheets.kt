@@ -1,6 +1,9 @@
 package cn.qingzhuan.app
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,10 +26,12 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun SmallAction(icon: String, label: String, enabled: Boolean = true, onClick: () -> Unit) {
+    val interaction=rememberGlassInteraction()
     FilledTonalIconButton(
         onClick,
         enabled = enabled,
-        modifier = Modifier.size(48.dp).controlGlass(LocalControlBackdrop.current, CircleShape),
+        modifier = Modifier.size(48.dp).glassPressFeedback(interaction,enabled).controlGlass(LocalControlBackdrop.current, CircleShape),
+        interactionSource=interaction,
         colors =
             IconButtonDefaults.filledTonalIconButtonColors(
                 containerColor = MaterialTheme.colorScheme.surface.copy(alpha = .13f)
@@ -58,9 +63,25 @@ fun NativeSheet(
     backdrop: com.kyant.backdrop.Backdrop,
     onVisible: (Boolean) -> Unit = {},
     targetFormat:String? = null,
+    onBack:()->Unit=onClose,
+    canGoBack:Boolean=false,
+    backwards:Boolean=false,
+    isCurrentPage:((String)->Boolean)?=null,
 ) {
     val c = MaterialTheme.colorScheme
-    GlassSheetHost(name,backdrop,reduced,onClose,onVisible) { activeName, dismiss ->
+    val latestName by rememberUpdatedState(name)
+    val latestIsCurrent by rememberUpdatedState(isCurrentPage)
+    GlassSheetHost(name,backdrop,reduced,onClose,onVisible,onBack=onBack,backwards=backwards) { activeName, dismiss ->
+        val permitted={latestIsCurrent?.invoke(activeName) ?: (activeName==latestName&&latestName!=null)}
+        val pageActions=actions.whenActive(permitted)
+        val closePage={if(permitted())dismiss()}
+        val navigate:(String)->Unit={if(permitted())onNavigate(it)}
+        val updateOptions:(Map<String,String>)->Unit={if(permitted())onOptions(it)}
+        val use:(List<String>)->Unit={if(permitted())onUse(it)}
+        val chooseTool:(HomeTool)->Unit={if(permitted())onTool(it)}
+        var confirming by remember(activeName){mutableStateOf(false)}
+        val pageBack={if(permitted()){if(confirming)confirming=false else onBack()}}
+        BackHandler(permitted()&&confirming){confirming=false}
         val name=activeName
         Column(
             Modifier.fillMaxWidth()
@@ -69,6 +90,7 @@ fun NativeSheet(
                 .padding(bottom = 28.dp)
         ) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                if(canGoBack){SmallAction("arrow-left","返回",onClick=pageBack);Spacer(Modifier.width(8.dp))}
                 UiText(
                     when (name) {
                         "menu" -> "轻转"
@@ -85,7 +107,7 @@ fun NativeSheet(
                     fontSize = 22.sp,
                     modifier = Modifier.weight(1f),
                 )
-                SmallAction("x", "关闭", onClick = dismiss)
+                SmallAction("x", "关闭", onClick = closePage)
             }
             Spacer(Modifier.height(20.dp))
             when (name) {
@@ -96,17 +118,17 @@ fun NativeSheet(
                             Triple("file-image", "背景与玻璃", "background"),
                             Triple("settings-2", "设置", "settings"),
                         )
-                        .forEach { (icon, title, next) ->
-                            ListItem(
+                        .forEachIndexed { index, (icon, title, next) ->
+                            MotionReveal(index){ListItem(
                                 headlineContent = { UiText(title) },
                                 leadingContent = { Glyph(icon) },
-                                modifier = Modifier.clickable { onNavigate(next) },
+                                modifier = Modifier.fillMaxWidth().clickable { navigate(next) },
                                 colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
-                            )
+                            )}
                         }
                 }
                 "inputs",
-                "results" -> FileList(snapshot, name == "inputs", actions, onUse, reduced)
+                "results" -> FileList(snapshot, name == "inputs", pageActions, use, reduced,confirming,{confirming=it})
                 "tools" ->
                     available.forEach { t ->
                         ListItem(
@@ -114,8 +136,8 @@ fun NativeSheet(
                             trailingContent = { if (t.id == tool?.id) Glyph("check") },
                             modifier =
                                 Modifier.clickable {
-                                    onTool(t)
-                                    dismiss()
+                                    chooseTool(t)
+                                    closePage()
                                 },
                             colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
                         )
@@ -123,9 +145,9 @@ fun NativeSheet(
                 "options" -> {
                     if (tool?.id in listOf("gif","video","videoframe","motionvideo")) {
                         val duration=selectedFiles.ifEmpty { snapshot.inputs }.filter { tool!!.id in it.tools }.map { it.durationMs }.filter { it>0 }.minOrNull()?:0
-                        MediaOptionsPanel(tool!!.id,duration,options,onOptions,reduced)
+                        MediaOptionsPanel(tool!!.id,duration,options,updateOptions,reduced)
                     }
-                    if(tool?.id in listOf("image","imagepdf"))ImageOptionsPanel(options,onOptions,targetFormat,reduced)
+                    if(tool?.id in listOf("image","imagepdf"))ImageOptionsPanel(options,updateOptions,targetFormat,reduced)
                     else UiText(tool?.description ?: "", color = c.onSurfaceVariant)
                     Spacer(Modifier.height(18.dp))
                     val keys =
@@ -144,7 +166,7 @@ fun NativeSheet(
                     keys.forEach { k ->
                         OutlinedTextField(
                             value = options[k] ?: "",
-                            onValueChange = { onOptions(options + (k to it)) },
+                            onValueChange = { updateOptions(options + (k to it)) },
                             label = {
                                 UiText(
                                     when (k) {
@@ -171,8 +193,8 @@ fun NativeSheet(
                         leadingContent = { Glyph("file-image") },
                         modifier =
                             Modifier.clickable {
-                                onNavigate("background")
-                                actions.pickBackgroundPhotos()
+                                pageActions.pickBackgroundPhotos()
+                                pageBack()
                             },
                         colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
                     )
@@ -181,8 +203,8 @@ fun NativeSheet(
                         leadingContent = { Glyph("folder") },
                         modifier =
                             Modifier.clickable {
-                                onNavigate("background")
-                                actions.pickBackground()
+                                pageActions.pickBackground()
+                                pageBack()
                             },
                         colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
                     )
@@ -193,8 +215,8 @@ fun NativeSheet(
                         leadingContent = { Glyph("file-image") },
                         modifier =
                             Modifier.clickable {
-                                dismiss()
-                                actions.pickPhotos()
+                                pageActions.pickPhotos()
+                                closePage()
                             },
                         colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
                     )
@@ -203,21 +225,21 @@ fun NativeSheet(
                         leadingContent = { Glyph("folder") },
                         modifier =
                             Modifier.clickable {
-                                dismiss()
-                                actions.pick()
+                                pageActions.pick()
+                                closePage()
                             },
                         colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
                     )
                 }
-                "background" -> BackgroundSettings(background,actions,reduced){onNavigate("background-import")}
+                "background" -> BackgroundSettings(background,pageActions,reduced){navigate("background-import")}
                 "settings" -> {
                     UiText("语言",style=MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.height(12.dp))
-                    GlassSegments(listOf(GlassChoice("system","跟随系统"),GlassChoice("zh","中文"),GlassChoice("en","English")),actions.languageMode(),Modifier.fillMaxWidth(),reduced=reduced,onSelect=actions.setLanguage)
+                    GlassSegments(listOf(GlassChoice("system","跟随系统"),GlassChoice("zh","中文"),GlassChoice("en","English")),pageActions.languageMode(),Modifier.fillMaxWidth(),reduced=reduced,onSelect=pageActions.setLanguage)
                     Spacer(Modifier.height(22.dp))
                     UiText("外观", style = MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.height(12.dp))
-                    GlassSegments(listOf(GlassChoice("system","自动"),GlassChoice("light","浅色"),GlassChoice("dark","深色")),mode,Modifier.fillMaxWidth(),reduced=reduced,onSelect=actions.setTheme)
+                    GlassSegments(listOf(GlassChoice("system","自动"),GlassChoice("light","浅色"),GlassChoice("dark","深色")),mode,Modifier.fillMaxWidth(),reduced=reduced,onSelect=pageActions.setTheme)
                     HorizontalDivider(Modifier.padding(vertical = 16.dp))
                     UiText(
                         "所有转换在本机完成。最多 20 份输入、单份 512 MiB、合计 1 GiB。文档只重建文字，无 OCR；MP3编码暂不支持；视频转码依赖本机编码器。",
@@ -230,8 +252,8 @@ fun NativeSheet(
                             color = c.error,
                             modifier = Modifier.padding(top = 12.dp),
                         )
-                    TextButton({ onNavigate("background") }) { UiText("背景与玻璃") }
-                    TextButton({ onNavigate("licenses") }) { UiText("开源许可与修改说明") }
+                    TextButton({ navigate("background") }) { UiText("背景与玻璃") }
+                    TextButton({ navigate("licenses") }) { UiText("开源许可与修改说明") }
                     UiText(
                         "${BuildConfig.VERSION_NAME} · Compose / Backdrop 1.0.6",
                         fontSize = 12.sp,
@@ -244,7 +266,7 @@ fun NativeSheet(
                         text =
                             withContext(Dispatchers.IO) {
                                 try {
-                                    actions.readLicenses()
+                                    pageActions.readLicenses()
                                 } catch (e: Exception) {
                                     e.toString()
                                 }
@@ -264,11 +286,13 @@ private fun FileList(
     actions: HomeActions,
     onUse: (List<String>) -> Unit,
     reduced: Boolean,
+    confirming:Boolean,
+    onConfirm:(Boolean)->Unit,
 ) {
     val files = if (inputs) snapshot.inputs else snapshot.outputs
     var selected by remember(inputs) { mutableStateOf(setOf<String>()) }
     var order by remember(inputs) { mutableStateOf(files.map { it.id }) }
-    var confirming by remember { mutableStateOf(false) }
+    val confirmationActive by rememberUpdatedState(confirming)
     LaunchedEffect(files) {
         val ids = files.map { it.id }.toSet()
         selected = selected.intersect(ids)
@@ -276,6 +300,7 @@ private fun FileList(
     }
     val rows = order.mapNotNull { id -> files.find { it.id == id } }
     val selectedIds = rows.filter { it.id in selected }.map { it.id }
+    val deleteIds by rememberUpdatedState(selectedIds)
     val c = MaterialTheme.colorScheme
     Row(
         Modifier.fillMaxWidth(),
@@ -303,19 +328,21 @@ private fun FileList(
             if (inputs) onUse(selectedIds) else actions.save(selectedIds)
         }
         SmallAction("trash", "删除所选文件", selected.isNotEmpty() && !snapshot.busy) {
-            confirming = true
+            onConfirm(true)
         }
     }
-    AnimatedVisibility(confirming,enter=if(reduced)EnterTransition.None else fadeIn()+expandVertically(),exit=if(reduced)ExitTransition.None else fadeOut()+shrinkVertically()) {
+    MotionDisclosure(confirming) {
         Column(Modifier.fillMaxWidth().padding(top=16.dp).controlGlass(LocalControlBackdrop.current, androidx.compose.foundation.shape.RoundedCornerShape(22.dp)).padding(18.dp)) {
             UiText("删除 ${selected.size} 项？",style=MaterialTheme.typography.titleMedium)
             UiText("只删除应用内部副本，原文件和已保存的副本不受影响。",color=c.onSurfaceVariant,modifier=Modifier.padding(top=8.dp))
             Row(Modifier.align(Alignment.End)) {
-                TextButton({confirming=false}){UiText("保留")}
+                TextButton({onConfirm(false)}){UiText("保留")}
                 TextButton({
-                    confirming=false
-                    if(inputs)actions.removeInputs(selectedIds)else actions.removeOutputs(selectedIds)
-                    selected=emptySet()
+                    if(confirmationActive) {
+                        onConfirm(false)
+                        if(inputs)actions.removeInputs(deleteIds)else actions.removeOutputs(deleteIds)
+                        selected=emptySet()
+                    }
                 },enabled=selectedIds.isNotEmpty()&&!snapshot.busy){UiText("删除",color=c.error)}
             }
         }
@@ -328,7 +355,7 @@ private fun FileList(
         )
     LazyColumn(Modifier.fillMaxWidth().heightIn(max=(LocalConfiguration.current.screenHeightDp*.55f).dp)) {
     itemsIndexed(rows,key={_,file->file.id}) { index,f ->
-        Column(Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
+        Column(Modifier.animateItem(fadeInSpec=if(reduced)snap()else tween(180),placementSpec=if(reduced)snap()else spring(dampingRatio=.85f,stiffness=440f),fadeOutSpec=if(reduced)snap()else tween(120)).fillMaxWidth().padding(vertical = 12.dp)) {
             Row(
                 Modifier.fillMaxWidth().clickable {
                     selected = if (f.id in selected) selected - f.id else selected + f.id
