@@ -10,3 +10,12 @@ __pycache__/
 .kotlin/
 local.properties
 *.idsig
+
+# Private handoff material; never publish local task state or signing records.
+/handoff/
+/docs/CURRENT_CHECKPOINT.md
+/docs/PROGRESS.md
+/docs/WORK_HANDOFF_QINGZHUAN.md
+/docs/RESEARCH_1_5_5.md
+/docs/DEVELOPMENT_1_5_5.md
+/docs/superpowers/

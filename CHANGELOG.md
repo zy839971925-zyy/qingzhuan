@@ -2,14 +2,19 @@
 
 ## 1.5.5 · 2026-10-30
 
-固定玻璃分段底座，保留活动镜片弹性；格式/菜单错峰、按钮按压、缩略图淡入、列表重排和参数披露。多结果可逐张预览；返回上一级、确认优先取消、旧页动作隔离。研究与最小验证边界见docs/RELEASE_1_5_5.md。
+- 图片默认使用方向校正后的原始尺寸与最高编码质量；增加尺寸预设、自定义尺寸和 JPEG / WebP 质量调节，PDF 输出参数独立。
+- 完善简体中文与英文界面、预览和通知文案；照片背景可分别调节浅色与深色遮罩。
+- 固定玻璃分段轨道并保留活动镜片弹性；加入错峰菜单、轻量按钮反馈、缩略图淡入与稳定列表转场。
+- 多个输入和转换结果可逐项浏览、批量管理；设置面板支持层级返回，删除默认取消，并避免切页时旧操作误触。
 
-Fixed segment track with elastic lens, purposeful native entrances/pressure/preview/list/disclosure, browsable result batches and guarded hierarchical panels.
+Image defaults retain orientation-corrected original dimensions and highest encoder quality, with size and JPEG / WebP controls plus independent PDF settings. Improved bilingual UI and notifications, per-theme photo overlays, refined glass interactions and transitions, browsable/manageable input and result batches, and safer nested-panel navigation.
 
-## 1.5.4-refined · 2026-10-26
+## 1.5.4 · 2026-10-26
 
-原图默认与高级尺寸/质量、独立深浅背景遮罩、中英文UI/通知/预览、底部同步提示、弹性分层卡片。移除冗余格式小字，隔离图片/PDF编码参数。2项Android28 JVM集成与必要主机检查通过；真机视觉/触摸/FPS未验收。见docs/RELEASE_1_5_4.md。
+增加原图尺寸和图像质量选项、独立深浅背景遮罩、中英文界面、同步提示和分层弹性卡片；图片与 PDF 编码参数相互隔离。
 
-Original-size defaults, optional image controls, per-theme photo overlays, bilingual UI/notifications/preview, synchronized bottom hint and spring card layers. Image/PDF quality isolation and raw filename boundaries corrected. Physical-device acceptance pending.
+Original-size and image-quality options, separate light/dark photo overlays, bilingual UI, synchronized hint and layered spring cards; image and PDF encoding settings are isolated.
 
-## 历史记录 / Earlier history
+## Earlier history
+
+See the repository’s Git history for earlier versions.

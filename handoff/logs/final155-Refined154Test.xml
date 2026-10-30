@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="cn.qingzhuan.app.Refined154Test" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-10-30T13:19:28.943Z" hostname="e2b.local" time="2.314">
-  <properties/>
-  <testcase name="manualLanguageUsesActualCatalogAndPreservesFileNamesOnAndroid28" classname="cn.qingzhuan.app.Refined154Test" time="1.99"/>
-  <testcase name="realImageEngineDoesNotApplyLegacyEdgeWhenAdvancedIsOff" classname="cn.qingzhuan.app.Refined154Test" time="0.319"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
